@@ -8,28 +8,28 @@ type SidebarProps = {
 
 export function Sidebar({ activeTool, tools, onSelectTool }: SidebarProps) {
   return (
-    <aside className="border-b border-slate-200 bg-white/90 p-4 backdrop-blur lg:sticky lg:top-0 lg:h-screen lg:w-72 lg:border-b-0 lg:border-r lg:p-6">
+    <aside className="border-b border-slate-200/80 bg-white/85 p-4 backdrop-blur-xl lg:sticky lg:top-0 lg:h-screen lg:w-72 lg:border-b-0 lg:border-r lg:p-6">
       <div className="flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-ink text-lg font-black text-white shadow-soft">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-brand-100 bg-brand-50 text-lg font-extrabold text-brand-700 shadow-sm">
           MO
         </div>
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-brand-600">
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-600">
             Marketing
           </p>
-          <h1 className="text-xl font-black tracking-tight text-ink">Ops Hub</h1>
+          <h1 className="text-xl font-extrabold tracking-tight text-ink">Ops Hub</h1>
         </div>
       </div>
 
-      <div className="mt-8 rounded-3xl border border-brand-100 bg-brand-50 p-4">
+      <div className="mt-9 rounded-2xl border border-brand-100 bg-brand-50/70 p-4">
         <p className="text-sm font-bold text-brand-700">Phase 1</p>
-        <p className="mt-1 text-sm leading-6 text-slate-600">
+        <p className="mt-1 text-sm leading-6 text-muted">
           Static dashboard scaffold with placeholders for future automation, saved history,
           and PDF exports.
         </p>
       </div>
 
-      <nav className="mt-8 space-y-2" aria-label="Marketing operations tools">
+      <nav className="mt-9 space-y-2" aria-label="Marketing operations tools">
         {tools.map((tool) => {
           const isActive = tool.id === activeTool;
 
@@ -38,10 +38,10 @@ export function Sidebar({ activeTool, tools, onSelectTool }: SidebarProps) {
               key={tool.id}
               type="button"
               onClick={() => onSelectTool(tool.id)}
-              className={`w-full rounded-2xl px-4 py-3 text-left transition ${
+              className={`w-full rounded-2xl border px-4 py-3 text-left transition ${
                 isActive
-                  ? 'bg-ink text-white shadow-soft'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-ink'
+                  ? 'border-brand-200 bg-brand-50 text-brand-700 shadow-sm'
+                  : 'border-transparent text-slate-600 hover:border-slate-200 hover:bg-white hover:text-ink'
               }`}
             >
               <span className="block text-xs font-bold uppercase tracking-[0.18em] opacity-70">

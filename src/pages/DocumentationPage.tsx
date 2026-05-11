@@ -5,16 +5,16 @@ import { TextArea } from '../components/TextArea';
 export function DocumentationPage() {
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.8fr)]">
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
+      <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-card">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-600">Static form</p>
-          <h2 className="mt-2 text-2xl font-black tracking-tight text-ink">Documentation Automation</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
+          <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-ink">Documentation Automation</h2>
+          <p className="mt-2 text-sm leading-6 text-muted">
             Prepare a structured workspace for turning messy notes into polished operational documentation.
           </p>
         </div>
 
-        <div className="mt-6 grid gap-5">
+        <div className="mt-7 grid gap-5">
           <FormInput
             label="Output type"
             placeholder="SOP, Process Document, Meeting Summary, or Action Plan"

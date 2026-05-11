@@ -7,7 +7,7 @@ export function PdfDownloadButton({ disabled = true }: PdfDownloadButtonProps) {
     <button
       type="button"
       disabled={disabled}
-      className="rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-500 transition enabled:bg-ink enabled:text-white enabled:hover:bg-brand-700 disabled:cursor-not-allowed"
+      className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-500 shadow-sm transition enabled:border-brand-600 enabled:bg-brand-600 enabled:text-white enabled:hover:bg-brand-700 disabled:cursor-not-allowed"
     >
       Download PDF soon
     </button>

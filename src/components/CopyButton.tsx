@@ -7,7 +7,7 @@ export function CopyButton({ disabled = true }: CopyButtonProps) {
     <button
       type="button"
       disabled={disabled}
-      className="rounded-full border border-slate-200 px-4 py-2 text-sm font-bold text-slate-500 transition enabled:hover:border-brand-500 enabled:hover:text-brand-600 disabled:cursor-not-allowed disabled:opacity-60"
+      className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-500 shadow-sm transition enabled:hover:border-brand-500 enabled:hover:text-brand-600 disabled:cursor-not-allowed disabled:opacity-60"
     >
       Copy output
     </button>

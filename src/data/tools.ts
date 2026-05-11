@@ -17,7 +17,7 @@ export const tools: Tool[] = [
     description:
       'Turn campaign inputs into a structured brief with goals, audience, channels, KPIs, and next steps.',
     status: 'AI-ready later',
-    accent: 'from-brand-500 to-indigo-500',
+    accent: 'bg-brand-500',
   },
   {
     id: 'utm',
@@ -26,7 +26,7 @@ export const tools: Tool[] = [
     description:
       'Standardize tracking links for campaign launches and preserve history for QA and reuse.',
     status: 'MVP next',
-    accent: 'from-emerald-500 to-teal-500',
+    accent: 'bg-emerald-500',
   },
   {
     id: 'documentation',
@@ -35,6 +35,6 @@ export const tools: Tool[] = [
     description:
       'Convert raw notes into clean SOPs, process docs, meeting summaries, and action plans.',
     status: 'Static preview',
-    accent: 'from-violet-500 to-fuchsia-500',
+    accent: 'bg-violet-500',
   },
 ];

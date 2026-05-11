@@ -5,16 +5,19 @@ export default {
     extend: {
       colors: {
         brand: {
-          50: '#eef7ff',
-          100: '#d9edff',
-          500: '#2f80ed',
-          600: '#1b66d2',
-          700: '#164fa4',
+          50: '#eff7ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
         },
-        ink: '#14213d',
+        ink: '#172033',
+        muted: '#64748b',
       },
       boxShadow: {
-        soft: '0 18px 45px rgba(20, 33, 61, 0.08)',
+        soft: '0 16px 40px rgba(15, 23, 42, 0.06)',
+        card: '0 8px 24px rgba(15, 23, 42, 0.05)',
       },
     },
   },
