@@ -22,6 +22,14 @@ const sectionLabels = [
   ['Next Steps', 'nextSteps'],
 ] as const;
 
+const advancedSections = [
+  ['Operational Readiness Checklist', 'operationalReadinessChecklist'],
+  ['Reporting Recommendations', 'reportingRecommendations'],
+  ['Attribution & Tracking Considerations', 'attributionTrackingConsiderations'],
+  ['Sales/BDR Alignment Notes', 'salesBdrAlignmentNotes'],
+  ['Recommended Automation Workflows', 'recommendedAutomationWorkflows'],
+] as const;
+
 export function CampaignBriefOutput({
   brief,
   output,
@@ -71,6 +79,23 @@ export function CampaignBriefOutput({
               <p className="mt-3 text-sm leading-6 text-slate-700">{brief.executiveSummary}</p>
             </div>
 
+            {brief.kpiHighlights.length ? (
+              <div className="grid gap-3 sm:grid-cols-3">
+                {brief.kpiHighlights.map((kpi) => (
+                  <div
+                    key={`${kpi.label}-${kpi.value}`}
+                    className="rounded-2xl border border-brand-100 bg-brand-50/70 p-4 shadow-sm"
+                  >
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-600">
+                      {kpi.label}
+                    </p>
+                    <p className="mt-2 text-sm font-bold leading-5 text-ink">{kpi.value}</p>
+                    <p className="mt-2 text-xs leading-5 text-muted">{kpi.context}</p>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
             {sectionLabels.map(([label, key]) => (
               <div key={key} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <h4 className="text-sm font-bold uppercase tracking-[0.18em] text-slate-500">
@@ -90,6 +115,47 @@ export function CampaignBriefOutput({
                 )}
               </div>
             ))}
+
+            {brief.operationalReadinessChecklist.length ? (
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm">
+                <h4 className="text-sm font-bold uppercase tracking-[0.18em] text-emerald-700">
+                  Operational Recommendations
+                </h4>
+                <p className="mt-2 text-sm leading-6 text-emerald-800">
+                  Prioritize these readiness checks before launch to protect attribution, routing,
+                  and reporting quality.
+                </p>
+                <ul className="mt-3 space-y-2 text-sm leading-6 text-emerald-900">
+                  {brief.operationalReadinessChecklist.slice(0, 3).map((item) => (
+                    <li key={item} className="flex gap-2">
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-600" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            <details className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <summary className="cursor-pointer text-sm font-bold uppercase tracking-[0.18em] text-brand-600">
+                Advanced GTM Insights
+              </summary>
+              <div className="mt-5 space-y-4">
+                {advancedSections.map(([label, key]) => (
+                  <div key={key} className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+                    <h5 className="text-sm font-bold text-ink">{label}</h5>
+                    <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-700">
+                      {brief[key].map((item) => (
+                        <li key={item} className="flex gap-2">
+                          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </details>
           </div>
         ) : (
           <div className="text-center">

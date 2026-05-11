@@ -78,8 +78,14 @@ function normalizeCampaignBrief(brief) {
     recommendedMessaging: normalizeList(brief.recommendedMessaging),
     timeline: normalizeList(brief.timeline),
     kpis: normalizeList(brief.kpis),
+    kpiHighlights: normalizeKpiHighlights(brief.kpiHighlights),
     risksDependencies: normalizeList(brief.risksDependencies),
     nextSteps: normalizeList(brief.nextSteps),
+    operationalReadinessChecklist: normalizeList(brief.operationalReadinessChecklist),
+    reportingRecommendations: normalizeList(brief.reportingRecommendations),
+    attributionTrackingConsiderations: normalizeList(brief.attributionTrackingConsiderations),
+    salesBdrAlignmentNotes: normalizeList(brief.salesBdrAlignmentNotes),
+    recommendedAutomationWorkflows: normalizeList(brief.recommendedAutomationWorkflows),
   };
 }
 
@@ -89,6 +95,20 @@ function normalizeList(value) {
   }
 
   return value ? [String(value)] : [];
+}
+
+function normalizeKpiHighlights(value) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) => ({
+      label: String(item?.label || ''),
+      value: String(item?.value || ''),
+      context: String(item?.context || ''),
+    }))
+    .filter((item) => item.label && item.value);
 }
 
 function createMockCampaignBrief(payload) {
@@ -118,20 +138,70 @@ function createMockCampaignBrief(payload) {
     ],
     kpis: [
       payload.kpis,
-      'Channel-level conversion rate',
-      'Landing page conversion rate',
-      'Pipeline or opportunity influence',
+      'MQL to SAL conversion by channel',
+      'Lifecycle stage progression from engaged to opportunity',
+      'Campaign-sourced and campaign-influenced pipeline',
+      'Routing SLA attainment for qualified leads',
+    ],
+    kpiHighlights: [
+      {
+        label: 'Primary KPI',
+        value: payload.kpis,
+        context: 'Anchors success measurement to the submitted campaign objective.',
+      },
+      {
+        label: 'Pipeline KPI',
+        value: 'Campaign-sourced pipeline and MQL to SAL conversion',
+        context: 'Connects demand creation to revenue team acceptance.',
+      },
+      {
+        label: 'Operational KPI',
+        value: 'Routing SLA attainment and attribution completeness',
+        context: 'Shows whether handoff speed and data quality support follow-up.',
+      },
     ],
     risksDependencies: [
       'Audience definition, offer, and CTA must be finalized before activation.',
       'UTM governance and CRM campaign setup need QA before launch.',
       'Creative and landing page approvals may affect the timeline.',
+      'Sales follow-up capacity and routing rules must be confirmed before launch.',
     ],
     nextSteps: [
       'Confirm campaign owner and approval stakeholders.',
       'Finalize audience criteria and channel budget allocation.',
       'Build campaign assets, tracking links, and QA checklist.',
       'Schedule performance review and optimization checkpoints.',
+    ],
+    operationalReadinessChecklist: [
+      'Create CRM campaign with standardized naming and member statuses.',
+      'Validate UTM naming, source fields, and channel taxonomy before launch.',
+      'Confirm lifecycle stage rules and MQL threshold with RevOps.',
+      'QA routing, alerts, nurture enrollment, and suppression logic.',
+      'Confirm sales enablement, SLA expectations, and follow-up ownership.',
+    ],
+    reportingRecommendations: [
+      'Build dashboard views for MQLs, SALs, opportunities, pipeline, and conversion by channel.',
+      'Track campaign-sourced and campaign-influenced pipeline separately.',
+      'Review attribution completeness, UTM consistency, and campaign member status coverage.',
+      'Compare performance against budget, timeline, and lifecycle stage goals.',
+    ],
+    attributionTrackingConsiderations: [
+      'Use governed UTMs for every channel and asset.',
+      'Confirm campaign member statuses align to funnel stages.',
+      'Validate original source, latest source, and campaign influence fields.',
+      'QA CRM and marketing automation campaign associations before launch.',
+    ],
+    salesBdrAlignmentNotes: [
+      'Define MQL to SAL acceptance criteria before launch.',
+      'Set routing SLA expectations for qualified responses.',
+      'Provide BDRs with message angles, objections, CTA, and target account context.',
+      'Clarify nurture versus direct follow-up paths for lower-intent engagement.',
+    ],
+    recommendedAutomationWorkflows: [
+      'Route qualified leads to sales based on audience fit and lifecycle stage.',
+      'Enroll non-ready leads into channel-specific nurture paths.',
+      'Trigger sales alerts when target-account engagement crosses threshold.',
+      'Update campaign member status based on form, attendance, or CTA engagement.',
     ],
   };
 }
@@ -156,8 +226,14 @@ function formatCampaignBriefText(brief) {
     ['Recommended Messaging', brief.recommendedMessaging],
     ['Timeline', brief.timeline],
     ['KPIs', brief.kpis],
+    ['KPI Highlights', brief.kpiHighlights.map((item) => `${item.label}: ${item.value} (${item.context})`)],
     ['Risks & Dependencies', brief.risksDependencies],
     ['Next Steps', brief.nextSteps],
+    ['Operational Readiness Checklist', brief.operationalReadinessChecklist],
+    ['Reporting Recommendations', brief.reportingRecommendations],
+    ['Attribution & Tracking Considerations', brief.attributionTrackingConsiderations],
+    ['Sales/BDR Alignment Notes', brief.salesBdrAlignmentNotes],
+    ['Recommended Automation Workflows', brief.recommendedAutomationWorkflows],
   ];
 
   return sections

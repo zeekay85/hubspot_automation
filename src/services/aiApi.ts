@@ -11,8 +11,18 @@ export type CampaignBrief = {
   recommendedMessaging: string[];
   timeline: string[];
   kpis: string[];
+  kpiHighlights: Array<{
+    label: string;
+    value: string;
+    context: string;
+  }>;
   risksDependencies: string[];
   nextSteps: string[];
+  operationalReadinessChecklist: string[];
+  reportingRecommendations: string[];
+  attributionTrackingConsiderations: string[];
+  salesBdrAlignmentNotes: string[];
+  recommendedAutomationWorkflows: string[];
 };
 
 type CampaignBriefResponse = AiResponse & {
