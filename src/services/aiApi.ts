@@ -19,6 +19,20 @@ type CampaignBriefResponse = AiResponse & {
   brief: CampaignBrief;
 };
 
+export type GeneratedDocumentation = {
+  title: string;
+  summary: string;
+  processSteps: string[];
+  rolesResponsibilities: string[];
+  actionItems: string[];
+  risksOpenQuestions: string[];
+  recommendedFormat: string[];
+};
+
+type DocumentationResponse = AiResponse & {
+  documentation: GeneratedDocumentation;
+};
+
 export type CampaignBriefRequest = {
   campaignName: string;
   campaignGoal: string;
@@ -43,7 +57,10 @@ export async function generateCampaignBrief(payload: CampaignBriefRequest) {
 }
 
 export async function generateDocumentation(payload: DocumentationRequest) {
-  return postToAiEndpoint('/api/generate-documentation', payload);
+  return postToAiEndpoint<DocumentationRequest, DocumentationResponse>(
+    '/api/generate-documentation',
+    payload,
+  );
 }
 
 async function postToAiEndpoint<TPayload, TResponse = AiResponse>(

@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
-import { AiOutputPanel } from '../components/AiOutputPanel';
+import { DocumentationOutput } from '../components/DocumentationOutput';
 import { TextArea } from '../components/TextArea';
 import { Toast } from '../components/Toast';
-import { generateDocumentation, type DocumentationRequest } from '../services/aiApi';
+import {
+  generateDocumentation,
+  type DocumentationRequest,
+  type GeneratedDocumentation,
+} from '../services/aiApi';
 
 const outputTypes = ['SOP', 'Process Document', 'Meeting Summary', 'Action Plan'];
 
@@ -14,6 +18,7 @@ const emptyDocumentationForm: DocumentationRequest = {
 export function DocumentationPage() {
   const [formValues, setFormValues] = useState<DocumentationRequest>(emptyDocumentationForm);
   const [output, setOutput] = useState('');
+  const [documentation, setDocumentation] = useState<GeneratedDocumentation>();
   const [source, setSource] = useState<'gemini' | 'mock'>();
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -36,6 +41,7 @@ export function DocumentationPage() {
     try {
       const result = await generateDocumentation(formValues);
       setOutput(result.output);
+      setDocumentation(result.documentation);
       setSource(result.source);
       setToastMessage('Documentation draft generated.');
     } catch (requestError) {
@@ -125,6 +131,7 @@ export function DocumentationPage() {
               onClick={() => {
                 setFormValues(emptyDocumentationForm);
                 setOutput('');
+                setDocumentation(undefined);
                 setError('');
               }}
               className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-brand-300 hover:text-brand-700"
@@ -134,10 +141,8 @@ export function DocumentationPage() {
           </div>
         </section>
 
-        <AiOutputPanel
-          title="Generated documentation preview"
-          description="The backend returns a clean documentation draft without exposing API keys to the frontend."
-          emptyState="Paste notes and generate a documentation draft to preview the backend response."
+        <DocumentationOutput
+          documentation={documentation}
           output={output}
           source={source}
           isLoading={isLoading}

@@ -35,13 +35,15 @@ aiRoutes.post('/generate-documentation', async (request, response, next) => {
     const prompt = documentationPrompt(payload);
     const result = await generateWithGemini(prompt, {
       mockTitle: `${payload.outputType} Draft`,
-      mockBody:
-        `Summary: The submitted notes have been organized into a clean ${payload.outputType.toLowerCase()} structure.\n\n` +
-        `Step-by-step process: Review the raw notes, identify owners, document the workflow, and flag open questions.\n\n` +
-        `Action items: Confirm missing details, assign owners, and publish the final document to the team workspace.`,
+      mockBody: JSON.stringify(createMockDocumentation(payload), null, 2),
     });
+    const documentation = parseDocumentation(result.text, payload);
 
-    response.json({ output: result.text, source: result.source });
+    response.json({
+      output: formatDocumentationText(documentation),
+      documentation,
+      source: result.source,
+    });
   } catch (error) {
     next(error);
   }
@@ -144,6 +146,111 @@ function formatCampaignBriefText(brief) {
     ['KPIs', brief.kpis],
     ['Risks & Dependencies', brief.risksDependencies],
     ['Next Steps', brief.nextSteps],
+  ];
+
+  return sections
+    .map(([title, items]) => {
+      const body = items.length === 1 ? items[0] : items.map((item) => `- ${item}`).join('\n');
+      return `${title}\n${body}`;
+    })
+    .join('\n\n');
+}
+
+function parseDocumentation(text, payload) {
+  try {
+    return normalizeDocumentation(JSON.parse(stripJsonFence(text)));
+  } catch {
+    return createFallbackDocumentation(text, payload);
+  }
+}
+
+function normalizeDocumentation(documentation) {
+  return {
+    title: String(documentation.title || ''),
+    summary: String(documentation.summary || ''),
+    processSteps: normalizeList(documentation.processSteps),
+    rolesResponsibilities: normalizeList(documentation.rolesResponsibilities),
+    actionItems: normalizeList(documentation.actionItems),
+    risksOpenQuestions: normalizeList(documentation.risksOpenQuestions),
+    recommendedFormat: normalizeList(documentation.recommendedFormat),
+  };
+}
+
+function createMockDocumentation(payload) {
+  const typeGuidance = {
+    SOP: {
+      title: 'Standard Operating Procedure Draft',
+      processLead: 'Follow a repeatable operating sequence with clear QA and handoff steps.',
+      formatTip: 'Publish with owner, purpose, prerequisites, step table, QA checklist, and revision date.',
+    },
+    'Process Document': {
+      title: 'Marketing Operations Process Document',
+      processLead: 'Map the workflow from intake through execution, review, and operational handoff.',
+      formatTip: 'Include workflow stages, systems involved, decision points, dependencies, and controls.',
+    },
+    'Meeting Summary': {
+      title: 'Meeting Summary and Follow-Up',
+      processLead: 'Summarize the discussion, capture decisions, and convert follow-ups into accountable actions.',
+      formatTip: 'Publish with attendees, decisions, action items, owners, due dates, and open questions.',
+    },
+    'Action Plan': {
+      title: 'Marketing Operations Action Plan',
+      processLead: 'Prioritize next steps, ownership, timing, dependencies, and completion criteria.',
+      formatTip: 'Use priority, owner, deadline, status, dependency, and success criteria fields.',
+    },
+  };
+  const guidance = typeGuidance[payload.outputType] || typeGuidance.SOP;
+
+  return {
+    title: guidance.title,
+    summary: `The submitted notes have been organized into a ${payload.outputType.toLowerCase()} that makes the workflow easier to execute, assign, and improve. The draft preserves the operational details from the notes while flagging gaps for follow-up.`,
+    processSteps: [
+      guidance.processLead,
+      'Review the submitted notes and confirm the intended workflow outcome.',
+      'Identify required inputs, systems, stakeholders, and handoff points.',
+      'Document each step in sequence with clear completion criteria.',
+      'Validate unresolved gaps with the process owner before publishing.',
+    ],
+    rolesResponsibilities: [
+      'Process owner: accountable for accuracy, approvals, and future updates.',
+      'Marketing operations: responsible for workflow setup, QA, tracking, and documentation hygiene.',
+      'Stakeholders mentioned in the notes: responsible for approvals, inputs, or follow-up actions.',
+    ],
+    actionItems: [
+      'Confirm missing owners, due dates, and dependencies from the raw notes.',
+      'Review the draft with the process owner for accuracy.',
+      'Publish the finalized document in the team workspace.',
+      'Schedule a review cycle to keep the documentation current.',
+    ],
+    risksOpenQuestions: [
+      'Some details may require owner confirmation before the document is production-ready.',
+      'Unclear dependencies could delay execution or handoff.',
+      'Open questions should be resolved before teams rely on this as the source of truth.',
+    ],
+    recommendedFormat: [
+      guidance.formatTip,
+      'Use clear section headings, short bullets, and consistent terminology.',
+      'Include last updated date and document owner for governance.',
+    ],
+  };
+}
+
+function createFallbackDocumentation(text, payload) {
+  return {
+    ...createMockDocumentation(payload),
+    summary: text || `${payload.outputType} draft generated from the submitted notes.`,
+  };
+}
+
+function formatDocumentationText(documentation) {
+  const sections = [
+    ['Title', [documentation.title]],
+    ['Summary', [documentation.summary]],
+    ['Step-by-Step Process', documentation.processSteps],
+    ['Roles & Responsibilities', documentation.rolesResponsibilities],
+    ['Action Items', documentation.actionItems],
+    ['Risks & Open Questions', documentation.risksOpenQuestions],
+    ['Recommended Format', documentation.recommendedFormat],
   ];
 
   return sections
