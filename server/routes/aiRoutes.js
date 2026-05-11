@@ -51,14 +51,22 @@ aiRoutes.post('/generate-documentation', async (request, response, next) => {
 
 function parseCampaignBrief(text, payload) {
   try {
-    return normalizeCampaignBrief(JSON.parse(stripJsonFence(text)));
+    return normalizeCampaignBrief(JSON.parse(extractJsonText(text)));
   } catch {
     return createFallbackCampaignBrief(text, payload);
   }
 }
 
-function stripJsonFence(text) {
-  return text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```$/i, '').trim();
+function extractJsonText(text) {
+  const unfencedText = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```$/i, '').trim();
+  const firstBrace = unfencedText.indexOf('{');
+  const lastBrace = unfencedText.lastIndexOf('}');
+
+  if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
+    return unfencedText;
+  }
+
+  return unfencedText.slice(firstBrace, lastBrace + 1);
 }
 
 function normalizeCampaignBrief(brief) {
@@ -129,9 +137,13 @@ function createMockCampaignBrief(payload) {
 }
 
 function createFallbackCampaignBrief(text, payload) {
+  const fallback = createMockCampaignBrief(payload);
+
   return {
-    ...createMockCampaignBrief(payload),
-    executiveSummary: text || `${payload.campaignName} campaign brief generated.`,
+    ...fallback,
+    executiveSummary:
+      fallback.executiveSummary ||
+      `${payload.campaignName} campaign brief generated. Review the generated sections and confirm details before launch.`,
   };
 }
 
@@ -158,7 +170,7 @@ function formatCampaignBriefText(brief) {
 
 function parseDocumentation(text, payload) {
   try {
-    return normalizeDocumentation(JSON.parse(stripJsonFence(text)));
+    return normalizeDocumentation(JSON.parse(extractJsonText(text)));
   } catch {
     return createFallbackDocumentation(text, payload);
   }
@@ -235,10 +247,14 @@ function createMockDocumentation(payload) {
   };
 }
 
-function createFallbackDocumentation(text, payload) {
+function createFallbackDocumentation(_text, payload) {
+  const fallback = createMockDocumentation(payload);
+
   return {
-    ...createMockDocumentation(payload),
-    summary: text || `${payload.outputType} draft generated from the submitted notes.`,
+    ...fallback,
+    summary:
+      fallback.summary ||
+      `${payload.outputType} draft generated from the submitted notes. Review the sections and resolve open questions before publishing.`,
   };
 }
 
