@@ -1,0 +1,107 @@
+import type { CampaignBrief } from '../services/aiApi';
+import { CopyButton } from './CopyButton';
+import { PdfDownloadButton } from './PdfDownloadButton';
+
+type CampaignBriefOutputProps = {
+  brief?: CampaignBrief;
+  output: string;
+  source?: 'gemini' | 'mock';
+  isLoading: boolean;
+  error: string;
+  onCopy: () => void;
+};
+
+const sectionLabels = [
+  ['Campaign Goal', 'campaignGoal'],
+  ['Target Audience', 'targetAudience'],
+  ['Channel Strategy', 'channelStrategy'],
+  ['Recommended Messaging', 'recommendedMessaging'],
+  ['Timeline', 'timeline'],
+  ['KPIs', 'kpis'],
+  ['Risks & Dependencies', 'risksDependencies'],
+  ['Next Steps', 'nextSteps'],
+] as const;
+
+export function CampaignBriefOutput({
+  brief,
+  output,
+  source,
+  isLoading,
+  error,
+  onCopy,
+}: CampaignBriefOutputProps) {
+  return (
+    <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-card">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-600">
+            {source === 'gemini' ? 'Gemini response' : source === 'mock' ? 'Mock response' : 'AI preview'}
+          </p>
+          <h3 className="mt-2 text-xl font-extrabold tracking-tight text-ink">
+            Generated brief preview
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-muted">
+            A structured campaign brief formatted for review, handoff, and portfolio demos.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <CopyButton disabled={!output} onClick={onCopy} label="Copy brief" />
+          <PdfDownloadButton />
+        </div>
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 p-6">
+        {isLoading ? (
+          <div className="space-y-3" aria-label="Generating campaign brief">
+            <div className="h-3 w-2/3 animate-pulse rounded-full bg-slate-200" />
+            <div className="h-3 w-full animate-pulse rounded-full bg-slate-200" />
+            <div className="h-3 w-5/6 animate-pulse rounded-full bg-slate-200" />
+            <div className="h-3 w-3/5 animate-pulse rounded-full bg-slate-200" />
+          </div>
+        ) : error ? (
+          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm leading-6 text-rose-700">
+            {error}
+          </div>
+        ) : brief ? (
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-brand-100 bg-white p-5 shadow-sm">
+              <h4 className="text-sm font-bold uppercase tracking-[0.18em] text-brand-600">
+                Executive Summary
+              </h4>
+              <p className="mt-3 text-sm leading-6 text-slate-700">{brief.executiveSummary}</p>
+            </div>
+
+            {sectionLabels.map(([label, key]) => (
+              <div key={key} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h4 className="text-sm font-bold uppercase tracking-[0.18em] text-slate-500">
+                  {label}
+                </h4>
+                {Array.isArray(brief[key]) ? (
+                  <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-700">
+                    {brief[key].map((item) => (
+                      <li key={item} className="flex gap-2">
+                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-3 text-sm leading-6 text-slate-700">{brief[key]}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-brand-100 bg-white text-2xl font-bold text-brand-600 shadow-sm">
+              +
+            </div>
+            <p className="mt-4 text-sm leading-6 text-muted">
+              Complete the form and generate a campaign brief to preview the structured output.
+            </p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}

@@ -52,6 +52,10 @@ export async function generateWithGemini(prompt, mockResponse) {
 }
 
 function formatMockResponse({ mockTitle, mockBody }) {
+  if (mockBody.trim().startsWith('{')) {
+    return mockBody;
+  }
+
   return `${mockTitle}\n\n${mockBody}\n\nSource: Mock response. Add GEMINI_API_KEY to .env to use Gemini.`;
 }
 

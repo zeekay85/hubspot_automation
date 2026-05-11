@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
-import { AiOutputPanel } from '../components/AiOutputPanel';
+import { CampaignBriefOutput } from '../components/CampaignBriefOutput';
 import { FormInput } from '../components/FormInput';
 import { TextArea } from '../components/TextArea';
 import { Toast } from '../components/Toast';
-import { generateCampaignBrief, type CampaignBriefRequest } from '../services/aiApi';
+import {
+  generateCampaignBrief,
+  type CampaignBrief,
+  type CampaignBriefRequest,
+} from '../services/aiApi';
 
 const emptyCampaignForm: CampaignBriefRequest = {
   campaignName: '',
@@ -19,6 +23,7 @@ const emptyCampaignForm: CampaignBriefRequest = {
 export function CampaignBriefPage() {
   const [formValues, setFormValues] = useState<CampaignBriefRequest>(emptyCampaignForm);
   const [output, setOutput] = useState('');
+  const [brief, setBrief] = useState<CampaignBrief>();
   const [source, setSource] = useState<'gemini' | 'mock'>();
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -48,6 +53,7 @@ export function CampaignBriefPage() {
     try {
       const result = await generateCampaignBrief(formValues);
       setOutput(result.output);
+      setBrief(result.brief);
       setSource(result.source);
       setToastMessage('Campaign brief generated.');
     } catch (requestError) {
@@ -158,6 +164,7 @@ export function CampaignBriefPage() {
               onClick={() => {
                 setFormValues(emptyCampaignForm);
                 setOutput('');
+                setBrief(undefined);
                 setError('');
               }}
               className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-brand-300 hover:text-brand-700"
@@ -167,10 +174,8 @@ export function CampaignBriefPage() {
           </div>
         </section>
 
-        <AiOutputPanel
-          title="Generated brief preview"
-          description="The backend returns a structured draft while keeping Gemini credentials server-side."
-          emptyState="Complete the form and generate a campaign brief to preview the backend response."
+        <CampaignBriefOutput
+          brief={brief}
           output={output}
           source={source}
           isLoading={isLoading}
