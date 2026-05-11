@@ -29,6 +29,10 @@ Return only valid JSON with this exact shape:
   ],
   "risksDependencies": ["3-5 practical risks, dependencies, or approvals to manage."],
   "nextSteps": ["4-6 concrete next steps for the marketing ops team."],
+  "operationalRiskAssessment": { "score": 82, "riskLevel": "Low Risk", "summary": "Short readiness assessment." },
+  "suggestedLifecycleProgression": ["3-5 lifecycle stage recommendations."],
+  "suggestedSlaRecommendations": ["3-5 routing or follow-up SLA recommendations."],
+  "governanceChecks": ["4-6 governance checks for launch readiness."],
   "operationalReadinessChecklist": ["4-6 checks covering CRM campaign setup, UTMs, routing, lifecycle stages, QA, and stakeholder approvals."],
   "reportingRecommendations": ["3-5 dashboard/reporting recommendations including pipeline, conversion, and campaign influence."],
   "attributionTrackingConsiderations": ["3-5 tracking recommendations covering UTM governance, campaign member status, source fields, and influence consistency."],
@@ -41,6 +45,8 @@ Rules:
 - Do not invent a budget if one was provided; reference the submitted budget where relevant.
 - Make the brief specific enough to discuss in an interview or portfolio review.
 - Reference concrete RevOps concepts where relevant: MQL to SAL conversion, lifecycle stage progression, routing SLAs, UTM governance, attribution consistency, campaign influence, source fields, and dashboard QA.
+- Adapt recommendations to campaign context. Webinars need registration, attendance, no-show nurture, statuses, and follow-up SLAs. ABM needs buying-group engagement, MQA logic, orchestration, and executive outreach. Customer marketing needs CSM alignment and expansion signals. Product launches need launch sequencing, stakeholder coordination, and operational dependencies.
+- Score operational readiness from 0-100 based on attribution planning, routing clarity, KPI specificity, operational dependencies, lifecycle definition, and sales alignment.
 - Keep bullets concise, executive-friendly, and under 24 words.
 `.trim();
 }

@@ -18,6 +18,14 @@ export type CampaignBrief = {
   }>;
   risksDependencies: string[];
   nextSteps: string[];
+  operationalRiskAssessment: {
+    score: number;
+    riskLevel: string;
+    summary: string;
+  };
+  suggestedLifecycleProgression: string[];
+  suggestedSlaRecommendations: string[];
+  governanceChecks: string[];
   operationalReadinessChecklist: string[];
   reportingRecommendations: string[];
   attributionTrackingConsiderations: string[];
@@ -37,6 +45,11 @@ export type GeneratedDocumentation = {
   actionItems: string[];
   risksOpenQuestions: string[];
   recommendedFormat: string[];
+  suggestedWorkflowAutomations: string[];
+  qaRecommendations: string[];
+  stakeholderDependencies: string[];
+  governanceRisks: string[];
+  implementationChecklist: string[];
 };
 
 type DocumentationResponse = AiResponse & {

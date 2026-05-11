@@ -9,6 +9,8 @@ type CampaignBriefOutputProps = {
   isLoading: boolean;
   error: string;
   onCopy: () => void;
+  onDownloadMarkdown: () => void;
+  onDownloadPdf: () => void;
 };
 
 const sectionLabels = [
@@ -28,6 +30,9 @@ const advancedSections = [
   ['Attribution & Tracking Considerations', 'attributionTrackingConsiderations'],
   ['Sales/BDR Alignment Notes', 'salesBdrAlignmentNotes'],
   ['Recommended Automation Workflows', 'recommendedAutomationWorkflows'],
+  ['Suggested Lifecycle Progression', 'suggestedLifecycleProgression'],
+  ['Suggested SLA Recommendations', 'suggestedSlaRecommendations'],
+  ['Governance Checks', 'governanceChecks'],
 ] as const;
 
 export function CampaignBriefOutput({
@@ -37,7 +42,15 @@ export function CampaignBriefOutput({
   isLoading,
   error,
   onCopy,
+  onDownloadMarkdown,
+  onDownloadPdf,
 }: CampaignBriefOutputProps) {
+  const riskTone = brief?.operationalRiskAssessment.riskLevel.includes('High')
+    ? 'border-rose-200 bg-rose-50 text-rose-700'
+    : brief?.operationalRiskAssessment.riskLevel.includes('Medium')
+      ? 'border-amber-200 bg-amber-50 text-amber-700'
+      : 'border-emerald-200 bg-emerald-50 text-emerald-700';
+
   return (
     <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-card">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -53,8 +66,9 @@ export function CampaignBriefOutput({
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <CopyButton disabled={!output} onClick={onCopy} label="Copy brief" />
-          <PdfDownloadButton />
+          <CopyButton disabled={!output} onClick={onCopy} label="Copy All" />
+          <CopyButton disabled={!output} onClick={onDownloadMarkdown} label="Markdown" />
+          <PdfDownloadButton disabled={!output} onClick={onDownloadPdf} />
         </div>
       </div>
 
@@ -95,6 +109,21 @@ export function CampaignBriefOutput({
                 ))}
               </div>
             ) : null}
+
+            <div className={`rounded-2xl border p-5 shadow-sm ${riskTone}`}>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h4 className="text-sm font-bold uppercase tracking-[0.18em]">
+                    Operational Readiness Score
+                  </h4>
+                  <p className="mt-2 text-sm leading-6">{brief.operationalRiskAssessment.summary}</p>
+                </div>
+                <div className="text-3xl font-extrabold">{brief.operationalRiskAssessment.score}%</div>
+              </div>
+              <p className="mt-3 inline-flex rounded-full bg-white/70 px-3 py-1 text-xs font-bold">
+                {brief.operationalRiskAssessment.riskLevel}
+              </p>
+            </div>
 
             {sectionLabels.map(([label, key]) => (
               <div key={key} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">

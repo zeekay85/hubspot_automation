@@ -9,6 +9,8 @@ type DocumentationOutputProps = {
   isLoading: boolean;
   error: string;
   onCopy: () => void;
+  onDownloadMarkdown: () => void;
+  onDownloadPdf: () => void;
 };
 
 const sectionLabels = [
@@ -17,6 +19,11 @@ const sectionLabels = [
   ['Action Items', 'actionItems'],
   ['Risks & Open Questions', 'risksOpenQuestions'],
   ['Recommended Format', 'recommendedFormat'],
+  ['Suggested Workflow Automations', 'suggestedWorkflowAutomations'],
+  ['QA Recommendations', 'qaRecommendations'],
+  ['Stakeholder Dependencies', 'stakeholderDependencies'],
+  ['Governance Risks', 'governanceRisks'],
+  ['Implementation Checklist', 'implementationChecklist'],
 ] as const;
 
 export function DocumentationOutput({
@@ -26,6 +33,8 @@ export function DocumentationOutput({
   isLoading,
   error,
   onCopy,
+  onDownloadMarkdown,
+  onDownloadPdf,
 }: DocumentationOutputProps) {
   return (
     <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-card">
@@ -42,8 +51,9 @@ export function DocumentationOutput({
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <CopyButton disabled={!output} onClick={onCopy} label="Copy document" />
-          <PdfDownloadButton />
+          <CopyButton disabled={!output} onClick={onCopy} label="Copy All" />
+          <CopyButton disabled={!output} onClick={onDownloadMarkdown} label="Markdown" />
+          <PdfDownloadButton disabled={!output} onClick={onDownloadPdf} />
         </div>
       </div>
 

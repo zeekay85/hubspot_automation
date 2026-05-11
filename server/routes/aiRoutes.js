@@ -81,11 +81,32 @@ function normalizeCampaignBrief(brief) {
     kpiHighlights: normalizeKpiHighlights(brief.kpiHighlights),
     risksDependencies: normalizeList(brief.risksDependencies),
     nextSteps: normalizeList(brief.nextSteps),
+    operationalRiskAssessment: normalizeRiskAssessment(brief.operationalRiskAssessment),
+    suggestedLifecycleProgression: normalizeList(brief.suggestedLifecycleProgression),
+    suggestedSlaRecommendations: normalizeList(brief.suggestedSlaRecommendations),
+    governanceChecks: normalizeList(brief.governanceChecks),
     operationalReadinessChecklist: normalizeList(brief.operationalReadinessChecklist),
     reportingRecommendations: normalizeList(brief.reportingRecommendations),
     attributionTrackingConsiderations: normalizeList(brief.attributionTrackingConsiderations),
     salesBdrAlignmentNotes: normalizeList(brief.salesBdrAlignmentNotes),
     recommendedAutomationWorkflows: normalizeList(brief.recommendedAutomationWorkflows),
+  };
+}
+
+function normalizeRiskAssessment(value) {
+  const score = Number(value?.score);
+  const normalizedScore = Number.isFinite(score) ? Math.max(0, Math.min(100, Math.round(score))) : 72;
+
+  return {
+    score: normalizedScore,
+    riskLevel: String(
+      value?.riskLevel ||
+        (normalizedScore >= 80 ? 'Low Risk' : normalizedScore >= 60 ? 'Medium Risk' : 'High Risk'),
+    ),
+    summary: String(
+      value?.summary ||
+        'Operational readiness depends on attribution, routing, lifecycle, and reporting QA.',
+    ),
   };
 }
 
@@ -172,6 +193,33 @@ function createMockCampaignBrief(payload) {
       'Build campaign assets, tracking links, and QA checklist.',
       'Schedule performance review and optimization checkpoints.',
     ],
+    operationalRiskAssessment: {
+      score: calculateReadinessScore(payload),
+      riskLevel:
+        calculateReadinessScore(payload) >= 80
+          ? 'Low Risk'
+          : calculateReadinessScore(payload) >= 60
+            ? 'Medium Risk'
+            : 'High Risk',
+      summary:
+        'Readiness is based on attribution planning, KPI specificity, routing clarity, lifecycle definition, and sales alignment.',
+    },
+    suggestedLifecycleProgression: [
+      'Map engaged leads to MQL criteria before sales handoff.',
+      'Define MQL to SAL acceptance rules with sales leadership.',
+      'Track opportunity creation and campaign influence after SAL acceptance.',
+    ],
+    suggestedSlaRecommendations: [
+      'Route qualified target-account leads within one business day.',
+      'Create BDR tasks when engagement crosses the MQL threshold.',
+      'Escalate missed follow-up SLAs in weekly revenue standup reporting.',
+    ],
+    governanceChecks: [
+      'Validate CRM campaign naming and hierarchy.',
+      'Confirm UTM values use the governed taxonomy.',
+      'QA campaign member statuses and lifecycle transitions.',
+      'Confirm dashboard filters match attribution rules.',
+    ],
     operationalReadinessChecklist: [
       'Create CRM campaign with standardized naming and member statuses.',
       'Validate UTM naming, source fields, and channel taxonomy before launch.',
@@ -229,6 +277,10 @@ function formatCampaignBriefText(brief) {
     ['KPI Highlights', brief.kpiHighlights.map((item) => `${item.label}: ${item.value} (${item.context})`)],
     ['Risks & Dependencies', brief.risksDependencies],
     ['Next Steps', brief.nextSteps],
+    ['Operational Risk Assessment', [`${brief.operationalRiskAssessment.score}% - ${brief.operationalRiskAssessment.riskLevel}: ${brief.operationalRiskAssessment.summary}`]],
+    ['Suggested Lifecycle Progression', brief.suggestedLifecycleProgression],
+    ['Suggested SLA Recommendations', brief.suggestedSlaRecommendations],
+    ['Governance Checks', brief.governanceChecks],
     ['Operational Readiness Checklist', brief.operationalReadinessChecklist],
     ['Reporting Recommendations', brief.reportingRecommendations],
     ['Attribution & Tracking Considerations', brief.attributionTrackingConsiderations],
@@ -242,6 +294,19 @@ function formatCampaignBriefText(brief) {
       return `${title}\n${body}`;
     })
     .join('\n\n');
+}
+
+function calculateReadinessScore(payload) {
+  const combined = `${payload.campaignGoal} ${payload.kpis} ${payload.notes} ${payload.channels}`.toLowerCase();
+  const checks = [
+    ['attribution', 'utm', 'source', 'tracking'],
+    ['routing', 'sla', 'follow-up', 'handoff', 'bdr', 'sales'],
+    ['mql', 'sal', 'pipeline', 'conversion', 'opportunity'],
+    ['lifecycle', 'stage', 'nurture'],
+    ['dashboard', 'reporting', 'influence'],
+  ];
+  const hits = checks.filter((keywords) => keywords.some((keyword) => combined.includes(keyword))).length;
+  return Math.min(92, 58 + hits * 7);
 }
 
 function parseDocumentation(text, payload) {
@@ -261,6 +326,11 @@ function normalizeDocumentation(documentation) {
     actionItems: normalizeList(documentation.actionItems),
     risksOpenQuestions: normalizeList(documentation.risksOpenQuestions),
     recommendedFormat: normalizeList(documentation.recommendedFormat),
+    suggestedWorkflowAutomations: normalizeList(documentation.suggestedWorkflowAutomations),
+    qaRecommendations: normalizeList(documentation.qaRecommendations),
+    stakeholderDependencies: normalizeList(documentation.stakeholderDependencies),
+    governanceRisks: normalizeList(documentation.governanceRisks),
+    implementationChecklist: normalizeList(documentation.implementationChecklist),
   };
 }
 
@@ -320,6 +390,33 @@ function createMockDocumentation(payload) {
       'Use clear section headings, short bullets, and consistent terminology.',
       'Include last updated date and document owner for governance.',
     ],
+    suggestedWorkflowAutomations: [
+      'Define enrollment triggers based on form submission, status change, or engagement threshold.',
+      'Configure duplicate suppression logic before creating tasks or nurture enrollment.',
+      'Create SLA tasks and alerts for owner follow-up.',
+      'Update lifecycle stage or process status when completion criteria are met.',
+    ],
+    qaRecommendations: [
+      'Test enrollment criteria with sample records before launch.',
+      'Validate owner assignment, due dates, and suppression rules.',
+      'Confirm reporting fields update after workflow completion.',
+    ],
+    stakeholderDependencies: [
+      'Process owner must approve final workflow and exception handling.',
+      'Marketing operations must validate systems, fields, and automation logic.',
+      'Revenue stakeholders must confirm SLA and handoff expectations.',
+    ],
+    governanceRisks: [
+      'Missing owner fields may create stalled tasks or unassigned follow-up.',
+      'Duplicate automation can create conflicting outreach or inaccurate reporting.',
+      'Unclear lifecycle transitions can reduce funnel reporting confidence.',
+    ],
+    implementationChecklist: [
+      'Finalize required fields, owners, and completion criteria.',
+      'Build automation in a sandbox or test workflow first.',
+      'QA triggers, suppression, routing, and reporting outputs.',
+      'Document owner, revision date, and escalation path.',
+    ],
   };
 }
 
@@ -343,6 +440,11 @@ function formatDocumentationText(documentation) {
     ['Action Items', documentation.actionItems],
     ['Risks & Open Questions', documentation.risksOpenQuestions],
     ['Recommended Format', documentation.recommendedFormat],
+    ['Suggested Workflow Automations', documentation.suggestedWorkflowAutomations],
+    ['QA Recommendations', documentation.qaRecommendations],
+    ['Stakeholder Dependencies', documentation.stakeholderDependencies],
+    ['Governance Risks', documentation.governanceRisks],
+    ['Implementation Checklist', documentation.implementationChecklist],
   ];
 
   return sections

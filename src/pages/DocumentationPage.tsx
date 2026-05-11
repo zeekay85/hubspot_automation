@@ -2,11 +2,19 @@ import { useEffect, useState } from 'react';
 import { DocumentationOutput } from '../components/DocumentationOutput';
 import { TextArea } from '../components/TextArea';
 import { Toast } from '../components/Toast';
+import { SavedOutputsPanel } from '../components/SavedOutputsPanel';
 import {
   generateDocumentation,
   type DocumentationRequest,
   type GeneratedDocumentation,
 } from '../services/aiApi';
+import { downloadMarkdown, downloadPdf, toMarkdown } from '../utils/exportUtils';
+import {
+  deleteSavedOutput,
+  readSavedOutputs,
+  saveOutput,
+  type SavedOutput,
+} from '../utils/savedOutputs';
 
 const outputTypes = ['SOP', 'Process Document', 'Meeting Summary', 'Action Plan'];
 
@@ -23,6 +31,7 @@ export function DocumentationPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [savedOutputs, setSavedOutputs] = useState(() => readSavedOutputs('Documentation'));
 
   useEffect(() => {
     if (!toastMessage) {
@@ -43,7 +52,14 @@ export function DocumentationPage() {
       setOutput(result.output);
       setDocumentation(result.documentation);
       setSource(result.source);
-      setToastMessage('Documentation draft generated.');
+      const savedOutput = saveOutput({
+        title: result.documentation.title || formValues.outputType,
+        documentType: 'Documentation',
+        output: result.output,
+        payload: result.documentation,
+      });
+      setSavedOutputs((currentOutputs) => [savedOutput, ...currentOutputs]);
+      setToastMessage('Documentation draft generated and saved.');
     } catch (requestError) {
       setError(
         requestError instanceof Error ? requestError.message : 'Unable to generate documentation.',
@@ -60,6 +76,30 @@ export function DocumentationPage() {
 
     await navigator.clipboard.writeText(output);
     setToastMessage('Output copied to clipboard.');
+  };
+
+  const exportMarkdown = () => {
+    downloadMarkdown(`${formValues.outputType.toLowerCase().replace(/\s+/g, '-')}.md`, toMarkdown(formValues.outputType, output));
+    setToastMessage('Markdown export created.');
+  };
+
+  const exportPdf = () => {
+    downloadPdf(`${formValues.outputType.toLowerCase().replace(/\s+/g, '-')}.pdf`, formValues.outputType, output);
+    setToastMessage('PDF export opened.');
+  };
+
+  const openSavedOutput = (savedOutput: SavedOutput) => {
+    setOutput(savedOutput.output);
+    setDocumentation(savedOutput.payload as GeneratedDocumentation);
+    setSource(undefined);
+    setError('');
+    setToastMessage('Saved documentation reopened.');
+  };
+
+  const removeSavedOutput = (id: string) => {
+    deleteSavedOutput(id);
+    setSavedOutputs((currentOutputs) => currentOutputs.filter((savedOutput) => savedOutput.id !== id));
+    setToastMessage('Saved output deleted.');
   };
 
   return (
@@ -148,8 +188,18 @@ export function DocumentationPage() {
           isLoading={isLoading}
           error={error}
           onCopy={copyOutput}
+          onDownloadMarkdown={exportMarkdown}
+          onDownloadPdf={exportPdf}
         />
       </div>
+
+      <SavedOutputsPanel
+        title="Recent Documentation Outputs"
+        documentType="Documentation"
+        outputs={savedOutputs}
+        onOpen={openSavedOutput}
+        onDelete={removeSavedOutput}
+      />
 
       <Toast message={toastMessage} />
     </>

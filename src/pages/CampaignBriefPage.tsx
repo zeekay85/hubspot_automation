@@ -3,11 +3,19 @@ import { CampaignBriefOutput } from '../components/CampaignBriefOutput';
 import { FormInput } from '../components/FormInput';
 import { TextArea } from '../components/TextArea';
 import { Toast } from '../components/Toast';
+import { SavedOutputsPanel } from '../components/SavedOutputsPanel';
 import {
   generateCampaignBrief,
   type CampaignBrief,
   type CampaignBriefRequest,
 } from '../services/aiApi';
+import { downloadMarkdown, downloadPdf, toMarkdown } from '../utils/exportUtils';
+import {
+  deleteSavedOutput,
+  readSavedOutputs,
+  saveOutput,
+  type SavedOutput,
+} from '../utils/savedOutputs';
 
 const emptyCampaignForm: CampaignBriefRequest = {
   campaignName: '',
@@ -28,6 +36,7 @@ export function CampaignBriefPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [savedOutputs, setSavedOutputs] = useState(() => readSavedOutputs('Campaign Brief'));
 
   useEffect(() => {
     if (!toastMessage) {
@@ -55,7 +64,14 @@ export function CampaignBriefPage() {
       setOutput(result.output);
       setBrief(result.brief);
       setSource(result.source);
-      setToastMessage('Campaign brief generated.');
+      const savedOutput = saveOutput({
+        title: formValues.campaignName || 'Campaign Brief',
+        documentType: 'Campaign Brief',
+        output: result.output,
+        payload: result.brief,
+      });
+      setSavedOutputs((currentOutputs) => [savedOutput, ...currentOutputs]);
+      setToastMessage('Campaign brief generated and saved.');
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Unable to generate brief.');
     } finally {
@@ -70,6 +86,30 @@ export function CampaignBriefPage() {
 
     await navigator.clipboard.writeText(output);
     setToastMessage('Output copied to clipboard.');
+  };
+
+  const exportMarkdown = () => {
+    downloadMarkdown(`${formValues.campaignName || 'campaign-brief'}.md`, toMarkdown('Campaign Brief', output));
+    setToastMessage('Markdown export created.');
+  };
+
+  const exportPdf = () => {
+    downloadPdf(`${formValues.campaignName || 'campaign-brief'}.pdf`, 'Campaign Brief', output);
+    setToastMessage('PDF export opened.');
+  };
+
+  const openSavedOutput = (savedOutput: SavedOutput) => {
+    setOutput(savedOutput.output);
+    setBrief(savedOutput.payload as CampaignBrief);
+    setSource(undefined);
+    setError('');
+    setToastMessage('Saved campaign brief reopened.');
+  };
+
+  const removeSavedOutput = (id: string) => {
+    deleteSavedOutput(id);
+    setSavedOutputs((currentOutputs) => currentOutputs.filter((savedOutput) => savedOutput.id !== id));
+    setToastMessage('Saved output deleted.');
   };
 
   return (
@@ -181,8 +221,18 @@ export function CampaignBriefPage() {
           isLoading={isLoading}
           error={error}
           onCopy={copyOutput}
+          onDownloadMarkdown={exportMarkdown}
+          onDownloadPdf={exportPdf}
         />
       </div>
+
+      <SavedOutputsPanel
+        title="Recent Campaign Briefs"
+        documentType="Campaign Brief"
+        outputs={savedOutputs}
+        onOpen={openSavedOutput}
+        onDelete={removeSavedOutput}
+      />
 
       <Toast message={toastMessage} />
     </>

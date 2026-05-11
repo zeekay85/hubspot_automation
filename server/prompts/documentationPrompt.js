@@ -15,7 +15,12 @@ Return only valid JSON with this exact shape:
   "rolesResponsibilities": ["Roles and responsibilities mentioned or reasonably inferred from the notes"],
   "actionItems": ["Concrete action items with owners if mentioned"],
   "risksOpenQuestions": ["Risks, dependencies, gaps, or open questions"],
-  "recommendedFormat": ["Formatting or publishing recommendations for this output type"]
+  "recommendedFormat": ["Formatting or publishing recommendations for this output type"],
+  "suggestedWorkflowAutomations": ["Specific automations such as enrollment triggers, lifecycle transitions, duplicate suppression, SLA task creation, alerts, or status updates"],
+  "qaRecommendations": ["Specific QA checks before the process is operationalized"],
+  "stakeholderDependencies": ["Cross-functional dependencies, approvals, or handoffs"],
+  "governanceRisks": ["Operational governance risks and controls"],
+  "implementationChecklist": ["Concrete implementation steps to make the document actionable"]
 }
 
 Output-specific guidance:
@@ -29,5 +34,7 @@ Rules:
 - Keep bullets concise and operational.
 - Use professional, portfolio-ready language.
 - Preserve uncertainty as open questions.
+- Prefer implementation-specific recommendations over generic language.
+- Reference systems, triggers, ownership, lifecycle stages, suppression logic, SLAs, QA, and reporting controls where supported by the notes.
 `.trim();
 }
