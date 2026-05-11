@@ -1,8 +1,8 @@
-const geminiEndpoint =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const defaultGeminiModel = 'gemini-2.5-flash';
 
 export async function generateWithGemini(prompt, mockResponse) {
   const apiKey = process.env.GEMINI_API_KEY;
+  const model = process.env.GEMINI_MODEL || defaultGeminiModel;
 
   if (!apiKey || apiKey === 'your_gemini_api_key_here') {
     return {
@@ -11,7 +11,9 @@ export async function generateWithGemini(prompt, mockResponse) {
     };
   }
 
-  const response = await fetch(`${geminiEndpoint}?key=${apiKey}`, {
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+    {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -27,12 +29,13 @@ export async function generateWithGemini(prompt, mockResponse) {
         maxOutputTokens: 900,
       },
     }),
-  });
+    },
+  );
 
   if (!response.ok) {
     const errorBody = await response.text();
     throw createServiceError(
-      'Gemini request failed. Check the API key and request payload.',
+      `Gemini request failed for model ${model}. Check the API key, model, and request payload.`,
       response.status,
       errorBody,
     );

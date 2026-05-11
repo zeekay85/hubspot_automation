@@ -30,6 +30,7 @@ Create a local `.env` file in the project root:
 
 ```bash
 GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-2.5-flash
 PORT=3001
 ```
 
@@ -43,6 +44,8 @@ PORT=3001
 4. Restart the backend server after changing `.env`.
 
 If no key is configured, the backend returns mock responses so the frontend can still be tested end to end.
+
+`GEMINI_MODEL` is optional. The backend defaults to `gemini-2.5-flash`.
 
 ## Run Locally
 
