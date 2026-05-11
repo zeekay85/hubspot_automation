@@ -1,12 +1,26 @@
 import { useEffect, useMemo, useState } from 'react';
 import { FormInput } from '../components/FormInput';
+import { SearchableSelect } from '../components/SearchableSelect';
 import { Toast } from '../components/Toast';
 import { UtmHistoryTable } from '../components/UtmHistoryTable';
 import {
+  campaignTypeOptions,
+  contentTypeOptions,
+  funnelStageOptions,
+  mediumOptions,
+  regionOptions,
+  sourceOptions,
+} from '../config/utmOptions';
+import {
+  buildRecommendedCampaignName,
   createSavedUtmLink,
   emptyUtmFormValues,
   generateUtmUrl,
+  getUtmWarnings,
   hasUtmErrors,
+  migrateSavedUtmLink,
+  normalizeCampaignString,
+  type LegacySavedUtmLink,
   type SavedUtmLink,
   type UtmField,
   type UtmFormValues,
@@ -18,7 +32,9 @@ const storageKey = 'marketing-ops-hub:utm-history';
 function readSavedLinks() {
   try {
     const savedLinks = window.localStorage.getItem(storageKey);
-    return savedLinks ? (JSON.parse(savedLinks) as SavedUtmLink[]) : [];
+    return savedLinks
+      ? (JSON.parse(savedLinks) as Array<SavedUtmLink | LegacySavedUtmLink>).map(migrateSavedUtmLink)
+      : [];
   } catch {
     return [];
   }
@@ -38,6 +54,8 @@ export function UtmBuilderPage() {
 
   const errors = useMemo(() => validateUtmForm(values), [values]);
   const generatedUrl = useMemo(() => generateUtmUrl(values), [values]);
+  const recommendedCampaign = useMemo(() => buildRecommendedCampaignName(values), [values]);
+  const warnings = useMemo(() => getUtmWarnings(values), [values]);
   const canUseGeneratedUrl = Boolean(generatedUrl) && !hasUtmErrors(errors);
 
   useEffect(() => {
@@ -59,6 +77,26 @@ export function UtmBuilderPage() {
       ...currentValues,
       [field]: value,
     }));
+    setTouchedFields((currentFields) => ({
+      ...currentFields,
+      [field]: true,
+    }));
+  };
+
+  const updateGovernedField = (field: UtmField, value: string) => {
+    const normalizedValue = normalizeCampaignString(value);
+
+    setValues((currentValues) => {
+      const nextValues = {
+        ...currentValues,
+        [field]: normalizedValue,
+      };
+
+      return {
+        ...nextValues,
+        finalCampaign: buildRecommendedCampaignName(nextValues),
+      };
+    });
     setTouchedFields((currentFields) => ({
       ...currentFields,
       [field]: true,
@@ -106,11 +144,14 @@ export function UtmBuilderPage() {
   const handleRegenerate = (link: SavedUtmLink) => {
     setValues({
       baseUrl: link.baseUrl,
+      campaignName: link.campaignName,
       source: link.source,
       medium: link.medium,
-      campaign: link.campaign,
-      term: link.term,
-      content: link.content,
+      campaignType: link.campaignType,
+      region: link.region,
+      contentType: link.contentType,
+      funnelStage: link.funnelStage,
+      finalCampaign: link.finalCampaign,
     });
     setHasSubmitted(false);
     setTouchedFields({});
@@ -129,7 +170,7 @@ export function UtmBuilderPage() {
               UTM Link Builder
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted">
-              Build lowercase, encoded campaign links with inline validation and local saved history.
+              Enforce approved source, medium, region, content, and campaign naming standards.
             </p>
           </div>
 
@@ -148,52 +189,117 @@ export function UtmBuilderPage() {
               />
             </div>
             <FormInput
+              label="Campaign Name"
+              name="campaignName"
+              placeholder="workday"
+              helperText="Use the marketable campaign or audience name; spaces become hyphens."
+              value={values.campaignName}
+              error={displayErrors.campaignName}
+              readOnly={false}
+              required
+              onChange={(event) => updateGovernedField('campaignName', event.target.value)}
+            />
+            <SearchableSelect
               label="Source"
               name="source"
-              placeholder="linkedin"
+              placeholder="Search approved sources"
+              options={sourceOptions}
+              helperText="Approved traffic origin used for utm_source."
               value={values.source}
               error={displayErrors.source}
-              readOnly={false}
               required
-              onChange={(event) => updateField('source', event.target.value)}
+              onChange={(value) => updateGovernedField('source', value)}
             />
-            <FormInput
+            <SearchableSelect
               label="Medium"
               name="medium"
-              placeholder="paid-social"
+              placeholder="Search approved media"
+              options={mediumOptions}
+              helperText="Approved channel grouping used for utm_medium."
               value={values.medium}
               error={displayErrors.medium}
-              readOnly={false}
               required
-              onChange={(event) => updateField('medium', event.target.value)}
+              onChange={(value) => updateGovernedField('medium', value)}
             />
-            <FormInput
-              label="Campaign"
-              name="campaign"
-              placeholder="spring-pipeline"
-              value={values.campaign}
-              error={displayErrors.campaign}
-              readOnly={false}
+            <SearchableSelect
+              label="Campaign Type"
+              name="campaignType"
+              placeholder="Search campaign types"
+              options={campaignTypeOptions}
+              helperText="Used in the standardized campaign naming convention."
+              value={values.campaignType}
+              error={displayErrors.campaignType}
               required
-              onChange={(event) => updateField('campaign', event.target.value)}
+              onChange={(value) => updateGovernedField('campaignType', value)}
             />
-            <FormInput
-              label="Term (optional)"
-              name="term"
-              placeholder="revops-software"
-              value={values.term}
-              readOnly={false}
-              onChange={(event) => updateField('term', event.target.value)}
+            <SearchableSelect
+              label="Region"
+              name="region"
+              placeholder="Search regions"
+              options={regionOptions}
+              helperText="Region keeps reporting cuts consistent across launches."
+              value={values.region}
+              error={displayErrors.region}
+              required
+              onChange={(value) => updateGovernedField('region', value)}
             />
-            <FormInput
-              label="Content (optional)"
-              name="content"
-              placeholder="carousel-ad-a"
-              value={values.content}
-              readOnly={false}
-              onChange={(event) => updateField('content', event.target.value)}
+            <SearchableSelect
+              label="Content Type"
+              name="contentType"
+              placeholder="Search content types"
+              options={contentTypeOptions}
+              helperText="Used for utm_content to classify creative or destination type."
+              value={values.contentType}
+              error={displayErrors.contentType}
+              required
+              onChange={(value) => updateGovernedField('contentType', value)}
+            />
+            <SearchableSelect
+              label="Funnel Stage (optional)"
+              name="funnelStage"
+              placeholder="Search funnel stages"
+              options={funnelStageOptions}
+              helperText="Optional utm_term value for lifecycle reporting."
+              value={values.funnelStage}
+              error={displayErrors.funnelStage}
+              onChange={(value) => updateGovernedField('funnelStage', value)}
             />
           </div>
+
+          <div className="mt-7 rounded-2xl border border-brand-100 bg-brand-50/70 p-5">
+            <p className="text-sm font-semibold text-ink">Recommended naming convention</p>
+            <p className="mt-2 text-sm leading-6 text-muted">
+              Use <span className="font-mono text-xs text-slate-700">year_type_campaign_region_source_medium</span> so campaign reporting stays consistent across HubSpot, ad platforms, and revenue dashboards.
+            </p>
+            <div className="mt-4 rounded-xl border border-brand-100 bg-white p-3 font-mono text-xs leading-5 text-slate-700">
+              {recommendedCampaign || '2026_abm_workday_emea_linkedin_paid-social'}
+            </div>
+          </div>
+
+          <div className="mt-7">
+            <FormInput
+              label="Final Campaign String"
+              name="finalCampaign"
+              placeholder="2026_abm_workday_emea_linkedin_paid-social"
+              helperText="You can manually edit this before generating the URL; warnings will flag deviations."
+              value={values.finalCampaign}
+              error={displayErrors.finalCampaign}
+              readOnly={false}
+              required
+              onChange={(event) => updateField('finalCampaign', normalizeCampaignString(event.target.value))}
+            />
+          </div>
+
+          {warnings.length ? (
+            <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+              <p className="text-sm font-semibold text-amber-900">Governance warnings</p>
+              <ul className="mt-2 space-y-1 text-sm leading-6 text-amber-800">
+                {warnings.map((warning) => (
+                  <li key={warning}>{warning}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
 
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             <button
@@ -227,7 +333,7 @@ export function UtmBuilderPage() {
                 Generated UTM URL
               </h3>
               <p className="mt-2 text-sm leading-6 text-muted">
-                Values are normalized to lowercase and encoded automatically.
+                Values are lowercased, hyphenated, de-duplicated, and URL-encoded automatically.
               </p>
             </div>
             <button
@@ -251,7 +357,7 @@ export function UtmBuilderPage() {
                   +
                 </div>
                 <p className="mt-4 text-sm leading-6 text-muted">
-                  Enter a valid base URL, source, medium, and campaign to preview your UTM link.
+                  Enter a valid base URL and governed attribution values to preview your UTM link.
                 </p>
               </div>
             )}
