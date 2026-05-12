@@ -19,12 +19,16 @@ const sectionLabels = [
   ['Action Items', 'actionItems'],
   ['Risks & Open Questions', 'risksOpenQuestions'],
   ['Recommended Format', 'recommendedFormat'],
-  ['Suggested Workflow Automations', 'suggestedWorkflowAutomations'],
   ['QA Recommendations', 'qaRecommendations'],
   ['Stakeholder Dependencies', 'stakeholderDependencies'],
-  ['Governance Risks', 'governanceRisks'],
   ['Implementation Checklist', 'implementationChecklist'],
 ] as const;
+
+const priorityStyles = {
+  high: 'border-rose-200 bg-rose-50 text-rose-800',
+  medium: 'border-amber-200 bg-amber-50 text-amber-800',
+  low: 'border-slate-200 bg-slate-50 text-slate-700',
+};
 
 export function DocumentationOutput({
   documentation,
@@ -78,6 +82,76 @@ export function DocumentationOutput({
               <p className="mt-3 text-sm leading-6 text-slate-700">{documentation.summary}</p>
             </div>
 
+            {documentation.priorityRecommendations.high.length ||
+            documentation.priorityRecommendations.medium.length ||
+            documentation.priorityRecommendations.low.length ? (
+              <div className="grid gap-3 lg:grid-cols-3">
+                {(['high', 'medium', 'low'] as const).map((priority) => (
+                  <div
+                    key={priority}
+                    className={`rounded-2xl border p-4 shadow-sm ${priorityStyles[priority]}`}
+                  >
+                    <p className="text-xs font-bold uppercase tracking-[0.16em]">
+                      {priority} priority
+                    </p>
+                    <ul className="mt-3 space-y-2 text-sm leading-6">
+                      {documentation.priorityRecommendations[priority].map((item) => (
+                        <li key={item} className="flex gap-2">
+                          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-current" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            {documentation.governanceRisks.length ? (
+              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5 shadow-sm">
+                <h4 className="text-sm font-bold uppercase tracking-[0.18em] text-rose-700">
+                  Critical Risks
+                </h4>
+                <ul className="mt-3 space-y-2 text-sm leading-6 text-rose-800">
+                  {documentation.governanceRisks.slice(0, 3).map((item) => (
+                    <li key={item} className="flex gap-2">
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-600" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {documentation.workflowLogic.length ? (
+              <div className="rounded-2xl border border-brand-100 bg-brand-50/60 p-5 shadow-sm">
+                <h4 className="text-sm font-bold uppercase tracking-[0.18em] text-brand-700">
+                  Suggested Workflow Logic
+                </h4>
+                <div className="mt-4 grid gap-3">
+                  {documentation.workflowLogic.map((workflow) => (
+                    <div key={workflow.name} className="rounded-xl border border-brand-100 bg-white p-4">
+                      <p className="text-sm font-bold text-ink">{workflow.name}</p>
+                      <dl className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
+                        <div>
+                          <dt className="font-semibold text-slate-500">Trigger</dt>
+                          <dd>{workflow.trigger}</dd>
+                        </div>
+                        <div>
+                          <dt className="font-semibold text-slate-500">Logic</dt>
+                          <dd>{workflow.logic}</dd>
+                        </div>
+                        <div>
+                          <dt className="font-semibold text-slate-500">Outcome</dt>
+                          <dd>{workflow.outcome}</dd>
+                        </div>
+                      </dl>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
             {sectionLabels.map(([label, key]) => (
               <div key={key} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <h4 className="text-sm font-bold uppercase tracking-[0.18em] text-slate-500">
@@ -93,6 +167,22 @@ export function DocumentationOutput({
                 </ul>
               </div>
             ))}
+
+            {documentation.operationalMaturityInsights.length ? (
+              <details className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <summary className="cursor-pointer text-sm font-bold uppercase tracking-[0.18em] text-brand-600">
+                  Operational Maturity Insights
+                </summary>
+                <ul className="mt-4 space-y-2 text-sm leading-6 text-slate-700">
+                  {documentation.operationalMaturityInsights.map((item) => (
+                    <li key={item} className="flex gap-2">
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            ) : null}
           </div>
         ) : (
           <div className="text-center">

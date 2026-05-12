@@ -20,7 +20,16 @@ Return only valid JSON with this exact shape:
   "qaRecommendations": ["Specific QA checks before the process is operationalized"],
   "stakeholderDependencies": ["Cross-functional dependencies, approvals, or handoffs"],
   "governanceRisks": ["Operational governance risks and controls"],
-  "implementationChecklist": ["Concrete implementation steps to make the document actionable"]
+  "implementationChecklist": ["Concrete implementation steps to make the document actionable"],
+  "priorityRecommendations": {
+    "high": ["2-4 high priority recommendations"],
+    "medium": ["2-4 medium priority recommendations"],
+    "low": ["2-4 low priority recommendations"]
+  },
+  "workflowLogic": [
+    { "name": "Workflow name", "trigger": "Enrollment trigger", "logic": "Specific routing/update/suppression logic", "outcome": "Operational outcome" }
+  ],
+  "operationalMaturityInsights": ["4-6 opinionated maturity observations about governance gaps, bottlenecks, reporting risks, automation opportunities, or ownership clarity"]
 }
 
 Output-specific guidance:
@@ -36,5 +45,8 @@ Rules:
 - Preserve uncertainty as open questions.
 - Prefer implementation-specific recommendations over generic language.
 - Reference systems, triggers, ownership, lifecycle stages, suppression logic, SLAs, QA, and reporting controls where supported by the notes.
+- Prioritize recommendations with clear high, medium, and low urgency.
+- Be opinionated. Prefer "standardize campaign member statuses" over "improve data quality".
+- Avoid generic consultant language such as "optimize processes" unless paired with specific operational actions.
 `.trim();
 }

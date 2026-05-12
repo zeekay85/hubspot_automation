@@ -50,6 +50,18 @@ export type GeneratedDocumentation = {
   stakeholderDependencies: string[];
   governanceRisks: string[];
   implementationChecklist: string[];
+  priorityRecommendations: {
+    high: string[];
+    medium: string[];
+    low: string[];
+  };
+  workflowLogic: Array<{
+    name: string;
+    trigger: string;
+    logic: string;
+    outcome: string;
+  }>;
+  operationalMaturityInsights: string[];
 };
 
 type DocumentationResponse = AiResponse & {

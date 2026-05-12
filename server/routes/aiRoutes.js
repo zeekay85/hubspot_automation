@@ -6,6 +6,11 @@ import {
   validateCampaignBriefRequest,
   validateDocumentationRequest,
 } from '../utilities/validators.js';
+import {
+  buildOperationalMaturityInsights,
+  buildPriorityRecommendations,
+  buildWorkflowLogic,
+} from '../utilities/operationalRecommendations.js';
 
 export const aiRoutes = Router();
 
@@ -331,7 +336,33 @@ function normalizeDocumentation(documentation) {
     stakeholderDependencies: normalizeList(documentation.stakeholderDependencies),
     governanceRisks: normalizeList(documentation.governanceRisks),
     implementationChecklist: normalizeList(documentation.implementationChecklist),
+    priorityRecommendations: normalizePriorityRecommendations(documentation.priorityRecommendations),
+    workflowLogic: normalizeWorkflowLogic(documentation.workflowLogic),
+    operationalMaturityInsights: normalizeList(documentation.operationalMaturityInsights),
   };
+}
+
+function normalizePriorityRecommendations(value) {
+  return {
+    high: normalizeList(value?.high),
+    medium: normalizeList(value?.medium),
+    low: normalizeList(value?.low),
+  };
+}
+
+function normalizeWorkflowLogic(value) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) => ({
+      name: String(item?.name || ''),
+      trigger: String(item?.trigger || ''),
+      logic: String(item?.logic || ''),
+      outcome: String(item?.outcome || ''),
+    }))
+    .filter((item) => item.name && item.trigger && item.logic);
 }
 
 function createMockDocumentation(payload) {
@@ -358,6 +389,9 @@ function createMockDocumentation(payload) {
     },
   };
   const guidance = typeGuidance[payload.outputType] || typeGuidance.SOP;
+  const priorityRecommendations = buildPriorityRecommendations(payload.rawNotes);
+  const workflowLogic = buildWorkflowLogic(payload.rawNotes);
+  const operationalMaturityInsights = buildOperationalMaturityInsights(payload.rawNotes);
 
   return {
     title: guidance.title,
@@ -417,6 +451,9 @@ function createMockDocumentation(payload) {
       'QA triggers, suppression, routing, and reporting outputs.',
       'Document owner, revision date, and escalation path.',
     ],
+    priorityRecommendations,
+    workflowLogic,
+    operationalMaturityInsights,
   };
 }
 
@@ -445,6 +482,17 @@ function formatDocumentationText(documentation) {
     ['Stakeholder Dependencies', documentation.stakeholderDependencies],
     ['Governance Risks', documentation.governanceRisks],
     ['Implementation Checklist', documentation.implementationChecklist],
+    ['High Priority Recommendations', documentation.priorityRecommendations.high],
+    ['Medium Priority Recommendations', documentation.priorityRecommendations.medium],
+    ['Low Priority Recommendations', documentation.priorityRecommendations.low],
+    [
+      'Suggested Workflow Logic',
+      documentation.workflowLogic.map(
+        (workflow) =>
+          `${workflow.name}: Trigger: ${workflow.trigger} Logic: ${workflow.logic} Outcome: ${workflow.outcome}`,
+      ),
+    ],
+    ['Operational Maturity Insights', documentation.operationalMaturityInsights],
   ];
 
   return sections
