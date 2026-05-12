@@ -10,8 +10,8 @@ export function Sidebar({ activeTool, tools, onSelectTool }: SidebarProps) {
   return (
     <aside className="border-b border-slate-200/80 bg-white/85 p-4 backdrop-blur-xl lg:sticky lg:top-0 lg:h-screen lg:w-72 lg:border-b-0 lg:border-r lg:p-6">
       <div className="flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-brand-100 bg-brand-50 text-lg font-extrabold text-brand-700 shadow-sm">
-          MO
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-brand-100 bg-brand-600 text-lg font-extrabold text-white shadow-sm">
+          <span className="tracking-tight">M</span>
         </div>
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-600">
@@ -22,10 +22,9 @@ export function Sidebar({ activeTool, tools, onSelectTool }: SidebarProps) {
       </div>
 
       <div className="mt-9 rounded-2xl border border-brand-100 bg-brand-50/70 p-4">
-        <p className="text-sm font-bold text-brand-700">Phase 1</p>
+        <p className="text-sm font-bold text-brand-700">Operational AI workspace</p>
         <p className="mt-1 text-sm leading-6 text-muted">
-          Static dashboard scaffold with placeholders for future automation, saved history,
-          and PDF exports.
+          Generate, save, reopen, copy, and export RevOps-ready campaign and documentation outputs.
         </p>
       </div>
 

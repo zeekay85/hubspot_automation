@@ -3,6 +3,7 @@ import { DocumentationOutput } from '../components/DocumentationOutput';
 import { TextArea } from '../components/TextArea';
 import { Toast } from '../components/Toast';
 import { SavedOutputsPanel } from '../components/SavedOutputsPanel';
+import { SamplePrompts } from '../components/SamplePrompts';
 import {
   generateDocumentation,
   type DocumentationRequest,
@@ -78,14 +79,33 @@ export function DocumentationPage() {
     setToastMessage('Output copied to clipboard.');
   };
 
+  const saveCurrentOutput = () => {
+    if (!output || !documentation) {
+      return;
+    }
+
+    const savedOutput = saveOutput({
+      title: documentation.title || formValues.outputType,
+      documentType: 'Documentation',
+      output,
+      payload: documentation,
+    });
+    setSavedOutputs((currentOutputs) => [savedOutput, ...currentOutputs]);
+    setToastMessage('Documentation saved locally.');
+  };
+
   const exportMarkdown = () => {
     downloadMarkdown(`${formValues.outputType.toLowerCase().replace(/\s+/g, '-')}.md`, toMarkdown(formValues.outputType, output));
     setToastMessage('Markdown export created.');
   };
 
   const exportPdf = () => {
-    downloadPdf(`${formValues.outputType.toLowerCase().replace(/\s+/g, '-')}.pdf`, formValues.outputType, output);
-    setToastMessage('PDF export opened.');
+    try {
+      downloadPdf(`${formValues.outputType.toLowerCase().replace(/\s+/g, '-')}.pdf`, formValues.outputType, output);
+      setToastMessage('PDF export opened.');
+    } catch (exportError) {
+      setToastMessage(exportError instanceof Error ? exportError.message : 'Unable to export PDF.');
+    }
   };
 
   const openSavedOutput = (savedOutput: SavedOutput) => {
@@ -101,6 +121,35 @@ export function DocumentationPage() {
     setSavedOutputs((currentOutputs) => currentOutputs.filter((savedOutput) => savedOutput.id !== id));
     setToastMessage('Saved output deleted.');
   };
+
+  const samplePrompts = [
+    {
+      title: 'Webinar launch SOP',
+      description: 'Standardizes campaign setup, UTM governance, routing, and post-event reporting.',
+      prompt: 'SOP for webinar intake, HubSpot campaign creation, UTM validation, Zoom setup, attendee routing, no-show nurture, QA checklist, and dashboard review.',
+      onUse: () => {
+        setFormValues({
+          outputType: 'SOP',
+          rawNotes:
+            'Create a webinar launch SOP. Include intake requirements, HubSpot and Salesforce campaign naming, approved UTM generation, Zoom registration QA, attendee routing within 24 hours, no-show nurture, duplicate follow-up suppression, and post-webinar dashboard review within 72 hours.',
+        });
+        setToastMessage('Example documentation prompt loaded.');
+      },
+    },
+    {
+      title: 'Campaign intake action plan',
+      description: 'Turns messy launch notes into owners, priorities, dependencies, and workflow logic.',
+      prompt: 'Action plan for campaign intake redesign with required fields, SLA ownership, governance checks, reporting dependencies, and implementation milestones.',
+      onUse: () => {
+        setFormValues({
+          outputType: 'Action Plan',
+          rawNotes:
+            'Campaign intake is inconsistent. Need mandatory fields for goal, region, audience, channel mix, Salesforce campaign, budget, launch date, UTM source/medium, BDR owner, and reporting dashboard. Marketing ops owns QA and demand gen owns promotion. Need SLA reminders and launch approval workflow.',
+        });
+        setToastMessage('Example documentation prompt loaded.');
+      },
+    },
+  ];
 
   return (
     <>
@@ -188,6 +237,7 @@ export function DocumentationPage() {
           isLoading={isLoading}
           error={error}
           onCopy={copyOutput}
+          onSave={saveCurrentOutput}
           onDownloadMarkdown={exportMarkdown}
           onDownloadPdf={exportPdf}
         />
@@ -200,6 +250,8 @@ export function DocumentationPage() {
         onOpen={openSavedOutput}
         onDelete={removeSavedOutput}
       />
+
+      <SamplePrompts title="Example documentation prompts" samples={samplePrompts} />
 
       <Toast message={toastMessage} />
     </>

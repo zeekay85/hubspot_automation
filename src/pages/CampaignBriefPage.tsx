@@ -4,6 +4,7 @@ import { FormInput } from '../components/FormInput';
 import { TextArea } from '../components/TextArea';
 import { Toast } from '../components/Toast';
 import { SavedOutputsPanel } from '../components/SavedOutputsPanel';
+import { SamplePrompts } from '../components/SamplePrompts';
 import {
   generateCampaignBrief,
   type CampaignBrief,
@@ -88,14 +89,33 @@ export function CampaignBriefPage() {
     setToastMessage('Output copied to clipboard.');
   };
 
+  const saveCurrentOutput = () => {
+    if (!output || !brief) {
+      return;
+    }
+
+    const savedOutput = saveOutput({
+      title: formValues.campaignName || 'Campaign Brief',
+      documentType: 'Campaign Brief',
+      output,
+      payload: brief,
+    });
+    setSavedOutputs((currentOutputs) => [savedOutput, ...currentOutputs]);
+    setToastMessage('Campaign brief saved locally.');
+  };
+
   const exportMarkdown = () => {
     downloadMarkdown(`${formValues.campaignName || 'campaign-brief'}.md`, toMarkdown('Campaign Brief', output));
     setToastMessage('Markdown export created.');
   };
 
   const exportPdf = () => {
-    downloadPdf(`${formValues.campaignName || 'campaign-brief'}.pdf`, 'Campaign Brief', output);
-    setToastMessage('PDF export opened.');
+    try {
+      downloadPdf(`${formValues.campaignName || 'campaign-brief'}.pdf`, 'Campaign Brief', output);
+      setToastMessage('PDF export opened.');
+    } catch (exportError) {
+      setToastMessage(exportError instanceof Error ? exportError.message : 'Unable to export PDF.');
+    }
   };
 
   const openSavedOutput = (savedOutput: SavedOutput) => {
@@ -111,6 +131,45 @@ export function CampaignBriefPage() {
     setSavedOutputs((currentOutputs) => currentOutputs.filter((savedOutput) => savedOutput.id !== id));
     setToastMessage('Saved output deleted.');
   };
+
+  const samplePrompts = [
+    {
+      title: 'Executive ABM dinner',
+      description: 'Opportunity acceleration with partner influence and field-event attribution risk.',
+      prompt: 'ABM dinner for open enterprise opportunities in EMEA with partner managers, BDR follow-up boundaries, Salesforce hierarchy cleanup, and executive engagement tracking.',
+      onUse: () => {
+        setFormValues({
+          campaignName: '2026 EMEA executive ABM dinner',
+          campaignGoal: 'Accelerate open enterprise opportunities and improve executive engagement quality',
+          targetAudience: 'CFOs, CHROs, RevOps leaders, and buying committee members at target accounts',
+          channels: 'Executive dinner, partner outreach, BDR follow-up, email, LinkedIn',
+          budget: '$45,000',
+          timeline: 'Q2 2026 field event motion',
+          kpis: 'Opportunity stage progression, executive attendance, MQA rate, influenced pipeline, follow-up SLA completion',
+          notes: 'Need to avoid duplicate outreach between partner managers and BDRs. Field-event attribution is weak today and Salesforce account hierarchy is inconsistent across parent/child accounts.',
+        });
+        setToastMessage('Example campaign loaded.');
+      },
+    },
+    {
+      title: 'Webinar launch',
+      description: 'Demand generation workflow with webinar statuses, no-show nurture, and routing SLAs.',
+      prompt: 'Webinar campaign for HR operations leaders with UTM governance, attendee routing, no-show nurture, and dashboard reporting requirements.',
+      onUse: () => {
+        setFormValues({
+          campaignName: '2026 HR ops webinar',
+          campaignGoal: 'Generate qualified pipeline from HR operations and payroll modernization accounts',
+          targetAudience: 'HR operations directors, payroll leaders, and RevOps stakeholders',
+          channels: 'Webinar, paid social, email nurture, partner newsletter',
+          budget: '$22,000',
+          timeline: 'May 15 - June 30, 2026',
+          kpis: 'Registration conversion, attendee rate, MQL to SAL conversion, meetings booked, influenced pipeline',
+          notes: 'Need webinar member statuses, no-show nurture, BDR follow-up within 24 hours, and clean UTM attribution across LinkedIn, email, and partner promotion.',
+        });
+        setToastMessage('Example campaign loaded.');
+      },
+    },
+  ];
 
   return (
     <>
@@ -221,6 +280,7 @@ export function CampaignBriefPage() {
           isLoading={isLoading}
           error={error}
           onCopy={copyOutput}
+          onSave={saveCurrentOutput}
           onDownloadMarkdown={exportMarkdown}
           onDownloadPdf={exportPdf}
         />
@@ -233,6 +293,8 @@ export function CampaignBriefPage() {
         onOpen={openSavedOutput}
         onDelete={removeSavedOutput}
       />
+
+      <SamplePrompts title="Example campaign scenarios" samples={samplePrompts} />
 
       <Toast message={toastMessage} />
     </>

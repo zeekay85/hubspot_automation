@@ -1,6 +1,26 @@
 # Marketing Ops Hub
 
-Marketing Ops Hub is a portfolio-ready React and Node app for marketing and revenue operations workflows. The current build includes a governed UTM Link Builder plus backend foundations for AI-powered campaign briefs and documentation automation.
+Marketing Ops Hub is a portfolio-ready React and Node app for marketing operations and revenue operations workflows. It helps teams build governed UTM links, generate operational campaign briefs, and turn messy process notes into structured documentation.
+
+## Screenshots
+
+Add screenshots before sharing the project publicly:
+
+- Dashboard overview
+- Governed UTM Link Builder
+- Campaign Brief Generator output
+- Documentation Automation output
+- Saved Outputs and export workflow
+
+## Feature Overview
+
+- Bright internal SaaS dashboard with responsive sidebar navigation
+- Governed UTM Link Builder with standardized picklists, campaign naming, validation, copy actions, and local history
+- Campaign Brief Generator with Gemini-backed operational recommendations, readiness scoring, KPI cards, GTM risk context, saved outputs, and exports
+- Documentation Automation with structured SOP/process/meeting/action-plan outputs, priority recommendations, workflow logic, maturity insights, saved outputs, and exports
+- Local Saved Outputs panel for reopening and deleting generated deliverables
+- Download as Markdown, print-to-PDF export, Copy All actions, and toast feedback
+- Secure backend API pattern that keeps Gemini keys out of the frontend
 
 ## Tech Stack
 
@@ -10,17 +30,21 @@ Marketing Ops Hub is a portfolio-ready React and Node app for marketing and reve
 - Vite
 - Node.js
 - Express
-- Google Gemini API foundation
-- Local storage for UTM history
+- Google Gemini API
+- Local storage for MVP persistence
 
 ## Architecture Overview
 
 - `src/` contains the Vite React frontend.
+- `src/components/` contains reusable UI and output-rendering components.
+- `src/pages/` contains the three main tool workspaces.
+- `src/services/` contains frontend API clients.
+- `src/utils/` contains UTM, saved-output, and export utilities.
 - `server/index.js` starts the Express API.
 - `server/routes/` defines API endpoints.
 - `server/services/` contains reusable integrations such as Gemini.
-- `server/prompts/` centralizes prompt templates.
-- `server/utilities/` contains validation and error handling.
+- `server/prompts/` centralizes AI prompt templates.
+- `server/utilities/` contains validation, operational recommendation helpers, and error handling.
 
 The frontend calls `/api/...` endpoints through the Vite dev proxy. Gemini credentials stay on the backend in `.env` and are never exposed to browser code.
 
@@ -44,8 +68,6 @@ PORT=3001
 4. Restart the backend server after changing `.env`.
 
 If no key is configured, the backend returns mock responses so the frontend can still be tested end to end.
-
-`GEMINI_MODEL` is optional. The backend defaults to `gemini-2.5-flash`.
 
 ## Run Locally
 
@@ -84,25 +106,24 @@ http://localhost:3001/api/health
 - `POST /api/generate-campaign-brief`
 - `POST /api/generate-documentation`
 
-Both endpoints validate required input, build a centralized prompt, call the Gemini service, and return either Gemini output or a mock fallback.
+Both endpoints validate required input, build centralized prompts, call the Gemini service, and return either Gemini output or a mock fallback.
 
-## Current Features
+## Deployment Preparation Notes
 
-- Bright SaaS dashboard shell
-- Campaign Brief Generator connected to backend foundation
-- Governed UTM Link Builder with local history
-- Documentation Automation connected to backend foundation
-- Secure environment variable pattern for Gemini
-- Modular backend structure for interviews and future expansion
+- Move local-storage persistence to Supabase or another database before supporting multi-user workspaces.
+- Store production Gemini keys in the hosting provider's environment variable manager.
+- Add server-side rate limiting and request size controls before public launch.
+- Configure separate frontend and backend deploy targets or a single Node host that serves the built Vite app.
+- Add production logging for AI request failures without logging secret keys or sensitive user inputs.
 
 ## Phase Roadmap
 
 - Phase 1: Project scaffold and static dashboard UI
 - Phase 2: Governed UTM Link Builder
 - Phase 3: Backend and Gemini API foundation
-- Phase 4: Deeper Campaign Brief prompt/output workflow
-- Phase 5: Deeper Documentation Automation prompt/output workflow
-- Phase 6: PDF export, toast polish, README polish, and portfolio context
+- Phase 4: Campaign Brief Generator workflow
+- Phase 5: Documentation Automation workflow
+- Phase 6: Productization, persistence, export, and portfolio polish
 
 ## Future Enhancements
 
@@ -110,6 +131,6 @@ Both endpoints validate required input, build a centralized prompt, call the Gem
 - User authentication
 - HubSpot campaign integration
 - UTM governance rules
-- Saved AI outputs
-- Team workspace
+- Saved AI outputs in a shared workspace
+- Team collaboration
 - Export to Google Docs

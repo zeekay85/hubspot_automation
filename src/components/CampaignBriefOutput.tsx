@@ -9,6 +9,7 @@ type CampaignBriefOutputProps = {
   isLoading: boolean;
   error: string;
   onCopy: () => void;
+  onSave: () => void;
   onDownloadMarkdown: () => void;
   onDownloadPdf: () => void;
 };
@@ -44,6 +45,7 @@ export function CampaignBriefOutput({
   isLoading,
   error,
   onCopy,
+  onSave,
   onDownloadMarkdown,
   onDownloadPdf,
 }: CampaignBriefOutputProps) {
@@ -67,7 +69,8 @@ export function CampaignBriefOutput({
             A structured campaign brief formatted for review, handoff, and portfolio demos.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="sticky top-3 z-20 flex flex-wrap gap-2 rounded-2xl border border-slate-200 bg-white/90 p-2 shadow-sm backdrop-blur">
+          <CopyButton disabled={!output} onClick={onSave} label="Save" />
           <CopyButton disabled={!output} onClick={onCopy} label="Copy All" />
           <CopyButton disabled={!output} onClick={onDownloadMarkdown} label="Markdown" />
           <PdfDownloadButton disabled={!output} onClick={onDownloadPdf} />
