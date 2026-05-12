@@ -95,6 +95,10 @@ function normalizeCampaignBrief(brief) {
     attributionTrackingConsiderations: normalizeList(brief.attributionTrackingConsiderations),
     salesBdrAlignmentNotes: normalizeList(brief.salesBdrAlignmentNotes),
     recommendedAutomationWorkflows: normalizeList(brief.recommendedAutomationWorkflows),
+    observedGtmRisks: normalizeList(brief.observedGtmRisks),
+    keyOperationalConstraints: normalizeList(brief.keyOperationalConstraints),
+    preservedStrategicContext: normalizeList(brief.preservedStrategicContext),
+    sourceTiedRecommendations: normalizeSourceTiedRecommendations(brief.sourceTiedRecommendations),
   };
 }
 
@@ -135,6 +139,19 @@ function normalizeKpiHighlights(value) {
       context: String(item?.context || ''),
     }))
     .filter((item) => item.label && item.value);
+}
+
+function normalizeSourceTiedRecommendations(value) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) => ({
+      sourceConcern: String(item?.sourceConcern || ''),
+      recommendation: String(item?.recommendation || ''),
+    }))
+    .filter((item) => item.sourceConcern && item.recommendation);
 }
 
 function createMockCampaignBrief(payload) {
@@ -256,6 +273,10 @@ function createMockCampaignBrief(payload) {
       'Trigger sales alerts when target-account engagement crosses threshold.',
       'Update campaign member status based on form, attendance, or CTA engagement.',
     ],
+    observedGtmRisks: buildObservedGtmRisks(payload),
+    keyOperationalConstraints: buildOperationalConstraints(payload),
+    preservedStrategicContext: buildPreservedStrategicContext(payload),
+    sourceTiedRecommendations: buildSourceTiedRecommendations(payload),
   };
 }
 
@@ -291,6 +312,15 @@ function formatCampaignBriefText(brief) {
     ['Attribution & Tracking Considerations', brief.attributionTrackingConsiderations],
     ['Sales/BDR Alignment Notes', brief.salesBdrAlignmentNotes],
     ['Recommended Automation Workflows', brief.recommendedAutomationWorkflows],
+    ['Observed GTM Risks', brief.observedGtmRisks],
+    ['Key Operational Constraints', brief.keyOperationalConstraints],
+    ['Preserved Strategic Context', brief.preservedStrategicContext],
+    [
+      'Source-Tied Recommendations',
+      brief.sourceTiedRecommendations.map(
+        (item) => `${item.sourceConcern}: ${item.recommendation}`,
+      ),
+    ],
   ];
 
   return sections
@@ -299,6 +329,82 @@ function formatCampaignBriefText(brief) {
       return `${title}\n${body}`;
     })
     .join('\n\n');
+}
+
+function buildObservedGtmRisks(payload) {
+  const context = `${payload.campaignName} ${payload.campaignGoal} ${payload.channels} ${payload.notes}`.toLowerCase();
+  const risks = [];
+
+  if (context.includes('partner')) {
+    risks.push('Partner influence may be underreported if partner touchpoints are not mapped to CRM campaign influence.');
+  }
+  if (context.includes('executive') || context.includes('dinner') || context.includes('field')) {
+    risks.push('Executive or field-event engagement can be lost without event-specific attribution and follow-up ownership.');
+  }
+  if (context.includes('duplicate')) {
+    risks.push('Duplicate outreach risk exists if partner managers, BDRs, and account owners do not have clear ownership boundaries.');
+  }
+  if (context.includes('salesforce') || context.includes('hierarchy')) {
+    risks.push('Salesforce hierarchy inconsistency may fragment campaign influence and opportunity acceleration reporting.');
+  }
+
+  return risks.length
+    ? risks
+    : ['Operational nuance may be lost if source concerns are not converted into campaign setup, routing, and reporting requirements.'];
+}
+
+function buildOperationalConstraints(payload) {
+  return [
+    `Execution must support the stated goal: ${payload.campaignGoal}.`,
+    `Channel operations must reflect the selected mix: ${payload.channels}.`,
+    `Measurement must preserve the submitted KPI focus: ${payload.kpis}.`,
+    'Campaign setup must align CRM hierarchy, source fields, member statuses, and lifecycle rules.',
+  ];
+}
+
+function buildPreservedStrategicContext(payload) {
+  return [
+    `Campaign context: ${payload.campaignName}.`,
+    `Audience context: ${payload.targetAudience}.`,
+    `Operational notes retained: ${payload.notes || 'No additional operational notes provided.'}`,
+  ];
+}
+
+function buildSourceTiedRecommendations(payload) {
+  const context = `${payload.channels} ${payload.notes}`.toLowerCase();
+  const recommendations = [];
+
+  if (context.includes('partner')) {
+    recommendations.push({
+      sourceConcern: 'Partner coordination and influence',
+      recommendation:
+        'Define partner-manager, BDR, and account-owner handoff rules so partner influence is captured without duplicate executive outreach.',
+    });
+  }
+  if (context.includes('executive') || context.includes('dinner') || context.includes('field')) {
+    recommendations.push({
+      sourceConcern: 'Executive or field-event engagement',
+      recommendation:
+        'Create event-specific campaign member statuses and post-event lifecycle rules for executive engagement and opportunity acceleration.',
+    });
+  }
+  if (context.includes('salesforce') || context.includes('hierarchy')) {
+    recommendations.push({
+      sourceConcern: 'Salesforce hierarchy inconsistency',
+      recommendation:
+        'QA parent-child campaign hierarchy before launch so influence reporting rolls up consistently across opportunity acceleration views.',
+    });
+  }
+
+  return recommendations.length
+    ? recommendations
+    : [
+        {
+          sourceConcern: 'Submitted operational context',
+          recommendation:
+            'Translate campaign-specific risks into explicit setup, routing, attribution, and reporting QA requirements before launch.',
+        },
+      ];
 }
 
 function calculateReadinessScore(payload) {

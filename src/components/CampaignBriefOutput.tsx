@@ -33,6 +33,8 @@ const advancedSections = [
   ['Suggested Lifecycle Progression', 'suggestedLifecycleProgression'],
   ['Suggested SLA Recommendations', 'suggestedSlaRecommendations'],
   ['Governance Checks', 'governanceChecks'],
+  ['Observed GTM Risks', 'observedGtmRisks'],
+  ['Key Operational Constraints', 'keyOperationalConstraints'],
 ] as const;
 
 export function CampaignBriefOutput({
@@ -162,6 +164,41 @@ export function CampaignBriefOutput({
                     </li>
                   ))}
                 </ul>
+              </div>
+            ) : null}
+
+            {brief.preservedStrategicContext.length ? (
+              <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-5 shadow-sm">
+                <h4 className="text-sm font-bold uppercase tracking-[0.18em] text-indigo-700">
+                  Preserved Strategic Context
+                </h4>
+                <ul className="mt-3 space-y-2 text-sm leading-6 text-indigo-900">
+                  {brief.preservedStrategicContext.map((item) => (
+                    <li key={item} className="flex gap-2">
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-600" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {brief.sourceTiedRecommendations.length ? (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
+                <h4 className="text-sm font-bold uppercase tracking-[0.18em] text-amber-700">
+                  Source-Tied Recommendations
+                </h4>
+                <div className="mt-4 grid gap-3">
+                  {brief.sourceTiedRecommendations.map((item) => (
+                    <div
+                      key={`${item.sourceConcern}-${item.recommendation}`}
+                      className="rounded-xl border border-amber-200 bg-white p-4"
+                    >
+                      <p className="text-sm font-bold text-ink">{item.sourceConcern}</p>
+                      <p className="mt-2 text-sm leading-6 text-slate-700">{item.recommendation}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : null}
 

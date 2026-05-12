@@ -4,6 +4,8 @@ You are a senior Marketing Operations and RevOps strategist creating an executiv
 
 Use the submitted values directly and make reasonable, clearly grounded recommendations. Think like an operator responsible for attribution, lifecycle stage movement, routing, reporting, governance, sales alignment, and pipeline impact. Keep the tone professional, concise, and practical.
 
+Critical instruction: preserve source-specific GTM nuance. Do not flatten unique operational concerns into generic best practices. If the input mentions executive dinners, partner coordination, duplicate outreach, fragmented payroll systems, weak field-event attribution, Salesforce hierarchy inconsistency, buying groups, partner influence, or opportunity acceleration, reflect those exact concerns in the recommendations.
+
 Campaign name: ${payload.campaignName}
 Campaign goal: ${payload.campaignGoal}
 Target audience: ${payload.targetAudience}
@@ -37,7 +39,13 @@ Return only valid JSON with this exact shape:
   "reportingRecommendations": ["3-5 dashboard/reporting recommendations including pipeline, conversion, and campaign influence."],
   "attributionTrackingConsiderations": ["3-5 tracking recommendations covering UTM governance, campaign member status, source fields, and influence consistency."],
   "salesBdrAlignmentNotes": ["3-5 notes covering routing SLAs, follow-up expectations, enablement, and handoff criteria."],
-  "recommendedAutomationWorkflows": ["3-5 workflow recommendations for nurture, routing, alerts, status updates, or lifecycle progression."]
+  "recommendedAutomationWorkflows": ["3-5 workflow recommendations for nurture, routing, alerts, status updates, or lifecycle progression."],
+  "observedGtmRisks": ["3-5 source-specific GTM risks observed from the input."],
+  "keyOperationalConstraints": ["3-5 constraints that must shape execution."],
+  "preservedStrategicContext": ["3-5 important original context details retained from the input."],
+  "sourceTiedRecommendations": [
+    { "sourceConcern": "specific concern from the input", "recommendation": "specific recommendation tied to that concern" }
+  ]
 }
 
 Rules:
@@ -48,5 +56,8 @@ Rules:
 - Adapt recommendations to campaign context. Webinars need registration, attendance, no-show nurture, statuses, and follow-up SLAs. ABM needs buying-group engagement, MQA logic, orchestration, and executive outreach. Customer marketing needs CSM alignment and expansion signals. Product launches need launch sequencing, stakeholder coordination, and operational dependencies.
 - Score operational readiness from 0-100 based on attribution planning, routing clarity, KPI specificity, operational dependencies, lifecycle definition, and sales alignment.
 - Keep bullets concise, executive-friendly, and under 24 words.
+- Tie recommendations directly to source concerns. Example: "Define ownership boundaries between partner managers and BDR teams following executive dinner engagement to prevent duplicate executive outreach."
+- Preserve relationship-driven and executive-engagement nuance, especially for field events, partner-led motions, buying committees, and opportunity acceleration.
+- It is acceptable for bullets in observedGtmRisks, keyOperationalConstraints, preservedStrategicContext, and sourceTiedRecommendations to be slightly longer when preserving important context.
 `.trim();
 }

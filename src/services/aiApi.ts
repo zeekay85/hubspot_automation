@@ -31,6 +31,13 @@ export type CampaignBrief = {
   attributionTrackingConsiderations: string[];
   salesBdrAlignmentNotes: string[];
   recommendedAutomationWorkflows: string[];
+  observedGtmRisks: string[];
+  keyOperationalConstraints: string[];
+  preservedStrategicContext: string[];
+  sourceTiedRecommendations: Array<{
+    sourceConcern: string;
+    recommendation: string;
+  }>;
 };
 
 type CampaignBriefResponse = AiResponse & {
