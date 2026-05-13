@@ -4,6 +4,7 @@ import { TextArea } from '../components/TextArea';
 import { Toast } from '../components/Toast';
 import { SavedOutputsPanel } from '../components/SavedOutputsPanel';
 import { SamplePrompts } from '../components/SamplePrompts';
+import { ToolHelpPanel } from '../components/ToolHelpPanel';
 import {
   generateDocumentation,
   type DocumentationRequest,
@@ -151,6 +152,8 @@ export function DocumentationPage() {
     },
   ];
 
+  const loadPrimaryExample = () => samplePrompts[0].onUse();
+
   return (
     <>
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.8fr)]">
@@ -163,9 +166,20 @@ export function DocumentationPage() {
               Documentation Automation
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted">
-              Send raw notes to the secure Express API and receive a clean draft response.
+              Convert raw notes into structured SOPs, process documents, meeting summaries, or
+              action plans with clear owners, workflows, risks, and implementation steps.
             </p>
           </div>
+
+          <ToolHelpPanel
+            title="From messy notes to implementation-ready documentation"
+            description="Use this when a process exists in Slack threads, meeting notes, or tribal knowledge and needs to become a reusable operating document."
+            bullets={[
+              'Best with owners, systems, handoffs, QA steps, SLAs, and unresolved questions.',
+              'Highlights workflow logic, governance risks, priorities, and action items.',
+              'Outputs are saved locally and can be reopened, copied, or exported.',
+            ]}
+          />
 
           <div className="mt-7 grid gap-5">
             <label className="block">
@@ -217,6 +231,13 @@ export function DocumentationPage() {
             </button>
             <button
               type="button"
+              onClick={loadPrimaryExample}
+              className="rounded-xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm font-semibold text-brand-700 shadow-sm transition hover:border-brand-300 hover:bg-white"
+            >
+              Try Example
+            </button>
+            <button
+              type="button"
               onClick={() => {
                 setFormValues(emptyDocumentationForm);
                 setOutput('');
@@ -251,7 +272,11 @@ export function DocumentationPage() {
         onDelete={removeSavedOutput}
       />
 
-      <SamplePrompts title="Example documentation prompts" samples={samplePrompts} />
+      <SamplePrompts
+        title="Example documentation prompts"
+        description="Use these examples to demonstrate how raw GTM operations notes become polished, reusable documentation."
+        samples={samplePrompts}
+      />
 
       <Toast message={toastMessage} />
     </>

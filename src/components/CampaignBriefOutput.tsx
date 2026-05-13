@@ -231,9 +231,16 @@ export function CampaignBriefOutput({
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-brand-100 bg-white text-2xl font-bold text-brand-600 shadow-sm">
               +
             </div>
+            <p className="mt-4 text-sm font-bold text-ink">Ready when your campaign context is</p>
             <p className="mt-4 text-sm leading-6 text-muted">
-              Complete the form and generate a campaign brief to preview the structured output.
+              Complete the form or use Try Example to generate an operational campaign brief with
+              KPIs, risks, attribution guidance, routing notes, and executive-friendly next steps.
             </p>
+            <div className="mx-auto mt-5 grid max-w-xl gap-2 text-left text-xs leading-5 text-slate-600 sm:grid-cols-3">
+              <span className="rounded-xl border border-slate-200 bg-white p-3">Add GTM context</span>
+              <span className="rounded-xl border border-slate-200 bg-white p-3">Generate brief</span>
+              <span className="rounded-xl border border-slate-200 bg-white p-3">Save or export</span>
+            </div>
           </div>
         )}
       </div>

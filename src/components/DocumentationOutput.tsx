@@ -192,9 +192,16 @@ export function DocumentationOutput({
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-brand-100 bg-white text-2xl font-bold text-brand-600 shadow-sm">
               +
             </div>
+            <p className="mt-4 text-sm font-bold text-ink">Paste notes or start from a demo prompt</p>
             <p className="mt-4 text-sm leading-6 text-muted">
-              Paste notes and generate documentation to preview the structured output.
+              Use raw process notes, meeting notes, or a Try Example prompt to generate a structured
+              operating document with priorities, workflow logic, risks, and action items.
             </p>
+            <div className="mx-auto mt-5 grid max-w-xl gap-2 text-left text-xs leading-5 text-slate-600 sm:grid-cols-3">
+              <span className="rounded-xl border border-slate-200 bg-white p-3">Paste rough notes</span>
+              <span className="rounded-xl border border-slate-200 bg-white p-3">Choose output type</span>
+              <span className="rounded-xl border border-slate-200 bg-white p-3">Save or export</span>
+            </div>
           </div>
         )}
       </div>

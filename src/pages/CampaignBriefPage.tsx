@@ -5,6 +5,7 @@ import { TextArea } from '../components/TextArea';
 import { Toast } from '../components/Toast';
 import { SavedOutputsPanel } from '../components/SavedOutputsPanel';
 import { SamplePrompts } from '../components/SamplePrompts';
+import { ToolHelpPanel } from '../components/ToolHelpPanel';
 import {
   generateCampaignBrief,
   type CampaignBrief,
@@ -171,6 +172,8 @@ export function CampaignBriefPage() {
     },
   ];
 
+  const loadPrimaryExample = () => samplePrompts[0].onUse();
+
   return (
     <>
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.8fr)]">
@@ -183,10 +186,20 @@ export function CampaignBriefPage() {
               Campaign Brief Generator
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted">
-              Send campaign inputs to the secure Express API. The backend uses Gemini when configured,
-              or a mock response while the API key is missing.
+              Turn campaign context into an executive-ready GTM brief with operational risks,
+              routing considerations, attribution checks, KPI recommendations, and next steps.
             </p>
           </div>
+
+          <ToolHelpPanel
+            title="From GTM notes to an operational campaign plan"
+            description="Use this when you need a structured brief for marketing ops, demand gen, sales, BDR, and leadership review."
+            bullets={[
+              'Best with campaign goals, audience, channels, KPIs, timeline, and constraints.',
+              'Captures attribution, lifecycle, routing, reporting, and stakeholder dependencies.',
+              'Outputs are saved locally and can be copied or exported for portfolio demos.',
+            ]}
+          />
 
           <div className="mt-7 grid gap-5 md:grid-cols-2">
             <FormInput
@@ -260,6 +273,13 @@ export function CampaignBriefPage() {
             </button>
             <button
               type="button"
+              onClick={loadPrimaryExample}
+              className="rounded-xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm font-semibold text-brand-700 shadow-sm transition hover:border-brand-300 hover:bg-white"
+            >
+              Try Example
+            </button>
+            <button
+              type="button"
               onClick={() => {
                 setFormValues(emptyCampaignForm);
                 setOutput('');
@@ -294,7 +314,11 @@ export function CampaignBriefPage() {
         onDelete={removeSavedOutput}
       />
 
-      <SamplePrompts title="Example campaign scenarios" samples={samplePrompts} />
+      <SamplePrompts
+        title="Example campaign scenarios"
+        description="Use these demos to quickly show how the brief generator handles real RevOps and GTM complexity."
+        samples={samplePrompts}
+      />
 
       <Toast message={toastMessage} />
     </>

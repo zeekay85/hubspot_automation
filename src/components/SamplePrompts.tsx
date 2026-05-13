@@ -1,5 +1,6 @@
 type SamplePromptsProps = {
   title: string;
+  description?: string;
   samples: Array<{
     title: string;
     description: string;
@@ -8,13 +9,14 @@ type SamplePromptsProps = {
   }>;
 };
 
-export function SamplePrompts({ title, samples }: SamplePromptsProps) {
+export function SamplePrompts({ title, description, samples }: SamplePromptsProps) {
   return (
     <section className="mt-6 rounded-2xl border border-brand-100 bg-brand-50/60 p-6 shadow-card">
       <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-600">
         Operational Insights Powered by AI
       </p>
       <h3 className="mt-2 text-xl font-extrabold tracking-tight text-ink">{title}</h3>
+      {description ? <p className="mt-2 text-sm leading-6 text-muted">{description}</p> : null}
       <div className="mt-5 grid gap-3 lg:grid-cols-3">
         {samples.map((sample) => (
           <div
@@ -32,7 +34,7 @@ export function SamplePrompts({ title, samples }: SamplePromptsProps) {
                 onClick={sample.onUse}
                 className="mt-4 rounded-xl border border-brand-200 bg-white px-3 py-2 text-xs font-semibold text-brand-700 shadow-sm transition hover:bg-brand-50"
               >
-                Load example
+                Try Example
               </button>
             ) : null}
           </div>
