@@ -16,19 +16,7 @@ export const aiRoutes = Router();
 
 aiRoutes.post('/generate-campaign-brief', async (request, response, next) => {
   try {
-    const payload = validateCampaignBriefRequest(request.body);
-    const prompt = campaignBriefPrompt(payload);
-    const result = await generateWithGemini(prompt, {
-      mockTitle: 'Campaign Brief Draft',
-      mockBody: JSON.stringify(createMockCampaignBrief(payload), null, 2),
-    });
-    const brief = parseCampaignBrief(result.text, payload);
-
-    response.json({
-      output: formatCampaignBriefText(brief),
-      brief,
-      source: result.source,
-    });
+    response.json(await generateCampaignBriefResponse(request.body));
   } catch (error) {
     next(error);
   }
@@ -36,23 +24,43 @@ aiRoutes.post('/generate-campaign-brief', async (request, response, next) => {
 
 aiRoutes.post('/generate-documentation', async (request, response, next) => {
   try {
-    const payload = validateDocumentationRequest(request.body);
-    const prompt = documentationPrompt(payload);
-    const result = await generateWithGemini(prompt, {
-      mockTitle: `${payload.outputType} Draft`,
-      mockBody: JSON.stringify(createMockDocumentation(payload), null, 2),
-    });
-    const documentation = parseDocumentation(result.text, payload);
-
-    response.json({
-      output: formatDocumentationText(documentation),
-      documentation,
-      source: result.source,
-    });
+    response.json(await generateDocumentationResponse(request.body));
   } catch (error) {
     next(error);
   }
 });
+
+export async function generateCampaignBriefResponse(body) {
+  const payload = validateCampaignBriefRequest(body);
+  const prompt = campaignBriefPrompt(payload);
+  const result = await generateWithGemini(prompt, {
+    mockTitle: 'Campaign Brief Draft',
+    mockBody: JSON.stringify(createMockCampaignBrief(payload), null, 2),
+  });
+  const brief = parseCampaignBrief(result.text, payload);
+
+  return {
+    output: formatCampaignBriefText(brief),
+    brief,
+    source: result.source,
+  };
+}
+
+export async function generateDocumentationResponse(body) {
+  const payload = validateDocumentationRequest(body);
+  const prompt = documentationPrompt(payload);
+  const result = await generateWithGemini(prompt, {
+    mockTitle: `${payload.outputType} Draft`,
+    mockBody: JSON.stringify(createMockDocumentation(payload), null, 2),
+  });
+  const documentation = parseDocumentation(result.text, payload);
+
+  return {
+    output: formatDocumentationText(documentation),
+    documentation,
+    source: result.source,
+  };
+}
 
 function parseCampaignBrief(text, payload) {
   try {

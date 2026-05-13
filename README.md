@@ -101,6 +101,48 @@ Backend health check:
 http://localhost:3001/api/health
 ```
 
+## Deploy to Vercel
+
+This project includes a Vercel serverless API adapter:
+
+- `api/health.js` serves `GET /api/health`.
+- `api/generate-campaign-brief.js` serves `POST /api/generate-campaign-brief`.
+- `api/generate-documentation.js` serves `POST /api/generate-documentation`.
+- `server/app.js` contains the reusable Express app configuration.
+- `server/index.js` is still used for local backend development.
+- `vercel.json` configures serverless function duration.
+
+In Vercel project settings, add these environment variables:
+
+```bash
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-2.5-flash
+```
+
+Do not prefix the Gemini key with `VITE_`. It must remain server-side only.
+
+Recommended Vercel settings:
+
+- Framework Preset: `Vite`
+- Build Command: `npm run build`
+- Output Directory: `dist`
+- Install Command: `npm install`
+
+After deployment, verify these production URLs return JSON:
+
+```bash
+https://your-vercel-domain.vercel.app/api/health
+```
+
+The two generate endpoints require `POST` requests with JSON bodies:
+
+```bash
+POST https://your-vercel-domain.vercel.app/api/generate-campaign-brief
+POST https://your-vercel-domain.vercel.app/api/generate-documentation
+```
+
+If the frontend shows a non-JSON API error, check that Vercel deployed the files in `api/` and that `GEMINI_API_KEY` is configured in Vercel project settings.
+
 ## API Endpoints
 
 - `POST /api/generate-campaign-brief`

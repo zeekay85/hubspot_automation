@@ -117,11 +117,34 @@ async function postToAiEndpoint<TPayload, TResponse = AiResponse>(
     body: JSON.stringify(payload),
   });
 
-  const data = await response.json();
+  const contentType = response.headers.get('content-type') || '';
+  const responseText = await response.text();
+  const data = parseJsonResponse<TResponse>(contentType, responseText);
+
+  if (!data) {
+    throw new Error(
+      'The API returned a non-JSON response. Confirm the Vercel /api routes are deployed and GEMINI_API_KEY is configured server-side.',
+    );
+  }
 
   if (!response.ok) {
     throw new Error(data.error || 'Unable to generate output. Please try again.');
   }
 
   return data;
+}
+
+function parseJsonResponse<TResponse>(
+  contentType: string,
+  responseText: string,
+): ({ error?: string } & TResponse) | null {
+  if (!contentType.includes('application/json') || !responseText) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(responseText);
+  } catch {
+    return null;
+  }
 }
